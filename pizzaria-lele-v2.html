@@ -2,8 +2,10 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pizzaria Fofa · Protótipo Visual v3</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#FFF8F0">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Lele's Pizzaria</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
@@ -23,7 +25,7 @@
     --elastico:cubic-bezier(.34,1.56,.64,1);
   }
 
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
 
   body{
@@ -34,10 +36,12 @@
       radial-gradient(circle at 92% 95%, var(--pessego) 0%, transparent 55%),
       var(--creme);
     overflow:hidden;
+    user-select:none;-webkit-user-select:none;
   }
 
-  h1,button,.brand,.client,.tab,.pot span,.box text{font-family:'Fredoka',sans-serif}
+  button,.brand,.client,.tab,.pot span,.badge,.start-title,.start-btn,.toast,.rotate-title,.rotate-btn{font-family:'Fredoka',sans-serif}
 
+  /* ---------- Layout do jogo ---------- */
   .app{
     height:100vh;height:100dvh;
     display:grid;
@@ -45,29 +49,16 @@
     grid-template-rows:auto 1fr;
     gap:16px;
     padding:16px 20px;
+    transition:opacity .6s ease, transform .6s var(--elastico);
   }
+  .app.hidden{opacity:0;transform:scale(.98);pointer-events:none}
 
-  /* ---------- Cabeçalho + barra de teste ---------- */
   .top{
     grid-column:1/-1;
     display:flex;align-items:center;justify-content:space-between;
     gap:16px;flex-wrap:wrap;
   }
   .brand{font-weight:600;font-size:1.45rem;display:flex;gap:10px;align-items:center}
-
-  .testbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-  .testbar > span{
-    font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-    color:var(--cafe-suave);margin-right:4px;
-  }
-  .testbar button{
-    border:1.5px dashed #D6B592;background:rgba(255,255,255,.7);
-    border-radius:999px;padding:6px 12px;cursor:pointer;
-    font-family:'Quicksand',sans-serif;font-weight:600;font-size:.85rem;color:var(--cafe);
-    transition:transform .25s var(--elastico), background .2s;
-  }
-  .testbar button:hover{transform:translateY(-2px)}
-  .testbar button.on{background:var(--sage);border:1.5px solid var(--sage)}
 
   .panel{
     background:rgba(255,255,255,.5);
@@ -77,8 +68,16 @@
     min-height:0;
   }
 
-  /* ---------- Balcão: comanda ---------- */
-  .counter{display:flex;flex-direction:column;justify-content:space-between;overflow:auto}
+  /* ---------- Balcão: comanda + botão fixo embaixo ---------- */
+  .counter{
+    display:flex;flex-direction:column;
+    min-height:0;overflow:hidden;
+  }
+  .comanda-wrap{
+    flex:1;min-height:0;
+    overflow:auto;
+    padding:2px 4px 4px;
+  }
 
   .comanda{
     position:relative;
@@ -108,7 +107,6 @@
   }
   .avatar svg{width:100%;height:100%;display:block}
 
-  /* Dupla: dois avatares lado a lado com brilhos entre eles */
   .duo{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px}
   .duo .avatar{width:96px;height:96px;margin:0}
   .sparkles{display:flex;flex-direction:column;align-items:center;gap:4px}
@@ -125,7 +123,6 @@
     50%{transform:scale(1.15)}
   }
 
-  /* Seletor de skins (pílulas) */
   .skins{margin-top:10px}
   .skin-row{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;margin-top:6px}
   .skin-row > span{
@@ -173,7 +170,10 @@
     background:var(--lavanda);border-radius:999px;padding:1px 7px;
   }
 
-  .nav{display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:14px}
+  .nav{
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    padding-top:10px;flex:none;
+  }
   .pill{
     border:none;cursor:pointer;border-radius:999px;padding:9px 18px;
     background:var(--lavanda);color:var(--cafe);font-weight:600;font-size:.95rem;
@@ -214,11 +214,21 @@
     content:'';position:absolute;inset:5%;border-radius:50%;pointer-events:none;
     background:repeating-linear-gradient(92deg, rgba(255,255,255,.14) 0 2px, transparent 2px 10px);
   }
+
+  #board{
+    width:100%;height:100%;
+    display:grid;place-items:center;
+    touch-action:none;
+    cursor:crosshair;
+  }
+  #board.no-active{cursor:default}
   .pizza{
     width:92%;height:92%;
     filter:drop-shadow(0 10px 10px rgba(74,59,50,.18));
+    pointer-events:none;
   }
-  .hint{font-size:.9rem;color:var(--cafe-suave);font-weight:600;text-align:center}
+
+  .hint{font-size:.9rem;color:var(--cafe-suave);font-weight:600;text-align:center;min-height:1.2em}
   .actions{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 
   .btn{
@@ -258,21 +268,30 @@
   }
   .pot:hover{transform:translateY(-3px) rotate(-1.5deg)}
   .pot:active{transform:scale(.92)}
-  .pot svg{width:60px;height:60px}
-  .pot span{font-size:.72rem;font-weight:600;line-height:1.1;text-align:center}
+  .pot svg{width:60px;height:60px;pointer-events:none}
+  .pot span{font-size:.72rem;font-weight:600;line-height:1.1;text-align:center;pointer-events:none}
   .pot[data-tab="bases"]{background:var(--sage)}
   .pot[data-tab="classicos"]{background:#FAD9DE}
   .pot[data-tab="especiais"]{background:var(--manteiga)}
   .pot[data-tab="doces"]{background:var(--lavanda)}
   .pot.on{box-shadow:0 0 0 3px #fff, 0 0 0 5px var(--rosa), 0 6px 12px -8px rgba(74,59,50,.4)}
+  .pot.active{
+    box-shadow:0 0 0 3px #fff, 0 0 0 6px var(--cafe-suave), 0 10px 18px -8px rgba(74,59,50,.5);
+    transform:translateY(-3px);
+    animation:breathe 1.6s ease-in-out infinite;
+  }
+  @keyframes breathe{
+    0%,100%{transform:translateY(-3px) scale(1)}
+    50%{transform:translateY(-3px) scale(1.04)}
+  }
   .badge{
     position:absolute;top:-6px;right:-4px;
     background:#fff;color:var(--cafe);border:1.5px solid var(--rosa);
-    font-family:'Fredoka',sans-serif;font-size:.62rem;font-weight:600;
-    border-radius:999px;padding:1px 6px;
+    font-size:.62rem;font-weight:600;
+    border-radius:999px;padding:1px 6px;pointer-events:none;
   }
 
-  /* ---------- Animações ---------- */
+  /* ---------- Animações dos ingredientes ---------- */
   @keyframes pop{
     0%{transform:scale(0) rotate(-25deg);opacity:0}
     65%{transform:scale(1.2) rotate(4deg);opacity:1}
@@ -281,6 +300,14 @@
   .pop{
     transform-box:fill-box;transform-origin:center;
     animation:pop .5s var(--elastico) both;
+  }
+  @keyframes spread{
+    from{transform:scale(.4);opacity:0}
+    to{transform:scale(1);opacity:1}
+  }
+  .spread{
+    transform-box:fill-box;transform-origin:center;
+    animation:spread .35s ease-out both;
   }
 
   /* ---------- Caixa de entrega ---------- */
@@ -310,26 +337,246 @@
     position:fixed;left:50%;bottom:24px;z-index:20;
     transform:translate(-50%,160px);
     background:#fff;border-radius:999px;padding:12px 22px;
-    box-shadow:var(--sombra);font-family:'Fredoka',sans-serif;font-weight:500;
+    box-shadow:var(--sombra);font-weight:500;
     transition:transform .45s var(--elastico);
     white-space:nowrap;
   }
   .toast.show{transform:translate(-50%,0)}
 
-  /* ---------- Responsivo ---------- */
-  @media (max-width:900px){
+  /* ---------- Tela inicial ---------- */
+  .start{
+    position:fixed;inset:0;z-index:30;
+    display:grid;place-items:center;
+    padding:24px;
+    background:
+      radial-gradient(circle at 20% 15%, #FFFFFF 0%, transparent 40%),
+      radial-gradient(circle at 85% 85%, var(--pessego) 0%, transparent 50%),
+      var(--creme);
+    transition:opacity .6s ease, transform .6s var(--elastico), visibility .6s;
+    overflow:hidden;
+  }
+  .start.gone{opacity:0;transform:scale(1.06);visibility:hidden;pointer-events:none}
+  .start-card{
+    display:flex;flex-direction:column;align-items:center;gap:14px;
+    text-align:center;position:relative;z-index:1;
+  }
+  .start-art{
+    width:min(56vw,260px);height:auto;
+    animation:floaty 4s ease-in-out infinite;
+    filter:drop-shadow(0 16px 18px rgba(74,59,50,.18));
+  }
+  @keyframes floaty{
+    0%,100%{transform:translateY(0) rotate(-2deg)}
+    50%{transform:translateY(-10px) rotate(2deg)}
+  }
+  .start-title{
+    font-size:clamp(2.2rem,7vw,3.4rem);font-weight:700;line-height:1;
+    color:var(--cafe);
+    text-shadow:0 3px 0 #fff, 0 8px 18px rgba(74,59,50,.15);
+  }
+  .start-title span{color:#D98A9A}
+  .start-sub{font-size:1rem;font-weight:600;color:var(--cafe-suave)}
+  .start-btn{
+    margin-top:10px;border:none;cursor:pointer;
+    border-radius:999px;padding:16px 54px;
+    font-size:1.4rem;font-weight:700;color:var(--cafe);
+    background:var(--rosa);
+    box-shadow:0 8px 0 #E08E9D, 0 18px 30px -12px rgba(74,59,50,.45);
+    transition:transform .2s var(--elastico), box-shadow .2s;
+  }
+  .start-btn:hover{transform:translateY(-3px);box-shadow:0 11px 0 #E08E9D, 0 22px 30px -12px rgba(74,59,50,.45)}
+  .start-btn:active{transform:translateY(6px);box-shadow:0 2px 0 #E08E9D}
+  .start-deco{position:absolute;inset:0;pointer-events:none;z-index:0}
+  .start-deco span{
+    position:absolute;font-size:1.4rem;opacity:.7;
+    animation:rise 6s linear infinite;
+  }
+  @keyframes rise{
+    0%{transform:translateY(20px) scale(.8);opacity:0}
+    20%{opacity:.8}
+    100%{transform:translateY(-110vh) scale(1.1);opacity:0}
+  }
+
+  /* ---------- Aviso: girar o celular (plano B, só em pé) ---------- */
+  .rotate-overlay{
+    position:fixed;inset:0;z-index:40;
+    display:none;place-items:center;
+    padding:24px;text-align:center;
+    background:
+      radial-gradient(circle at 20% 15%, #FFFFFF 0%, transparent 40%),
+      radial-gradient(circle at 85% 85%, var(--pessego) 0%, transparent 50%),
+      var(--creme);
+  }
+  .rotate-card{display:flex;flex-direction:column;align-items:center;gap:14px}
+  .rotate-phone{
+    width:70px;height:110px;border-radius:18px;
+    border:4px solid var(--cafe-suave);background:var(--manteiga);
+    display:grid;place-items:center;
+    animation:turn 2.4s var(--elastico) infinite;
+  }
+  .rotate-phone svg{width:34px;height:34px}
+  @keyframes turn{
+    0%,20%{transform:rotate(0)}
+    50%,70%{transform:rotate(-90deg)}
+    100%{transform:rotate(0)}
+  }
+  .rotate-title{font-size:1.6rem;font-weight:700;color:var(--cafe)}
+  .rotate-sub{font-size:1rem;font-weight:600;color:var(--cafe-suave);max-width:260px}
+
+  /* ---------- Responsivo: celular em pé e tablet ---------- */
+  @media (max-width:900px) and (orientation:portrait){
     body{overflow:auto}
     .app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:auto}
     .counter{overflow:visible}
+    .comanda-wrap{overflow:visible}
     .comanda{max-width:360px;width:100%;margin:0 auto}
     .table{width:min(88vw,400px)}
-    .pot-grid{overflow:visible}
+    .pot-grid{overflow:visible;grid-template-columns:repeat(4,1fr)}
+    .pot svg{width:52px;height:52px}
+    .toast{bottom:16px}
+  }
+  @media (max-width:480px) and (orientation:portrait){
+    .app{padding:12px}
+    .pot-grid{grid-template-columns:repeat(3,1fr)}
+    .seg{padding:7px 10px;font-size:.82rem}
+  }
+
+  /* ---------- Celular deitado: 3 colunas compactas, sem rolagem geral ---------- */
+  @media (orientation:landscape) and (max-height:550px){
+    .app{
+      height:100dvh;min-height:0;
+      grid-template-columns:215px 1fr 225px;
+      grid-template-rows:auto 1fr;
+      gap:8px;
+      padding:8px 12px;
+      overflow:hidden;
+    }
+    body{overflow:hidden}
+    .top{gap:8px}
+    .brand{font-size:1.1rem;gap:6px}
+    .brand svg{width:26px;height:26px}
+
+    .panel{padding:8px;border-radius:18px}
+    .counter{overflow:hidden}
+    .comanda-wrap{padding:2px 2px 2px}
+
+    /* Comanda compacta */
+    .comanda{padding:12px 10px 10px;border-radius:14px}
+    .comanda-head{font-size:.62rem;margin-bottom:2px}
+    .avatar{width:64px;height:64px;border-width:3px;margin-top:2px}
+    .duo{margin-top:2px;gap:2px}
+    .duo .avatar{width:52px;height:52px}
+    .sparkles svg{width:12px;height:12px}
+    .sparkles .heart{width:14px;height:14px}
+    .skins{margin-top:4px}
+    .skin-row{margin-top:3px;gap:4px}
+    .skin-row > span{font-size:.55rem}
+    .skin-pill{padding:2px 7px;font-size:.6rem}
+    .client{font-size:.95rem;margin-top:4px}
+    .bubble{font-size:.7rem;line-height:1.25;padding:6px 8px;margin-top:8px}
+    .bubble::before{border-width:6px;margin-left:-6px;top:-6px}
+    .items{margin-top:4px}
+    .items li{font-size:.7rem;padding:3px 0;gap:6px}
+    .items i{width:11px;height:11px;border-width:1.5px}
+    .items li.done i{box-shadow:inset 0 0 0 2px #A8D5B5}
+    .items em{font-size:.55rem;padding:0 5px}
+    .nav{padding-top:6px}
+    .pill{padding:5px 12px;font-size:.72rem;box-shadow:0 3px 0 rgba(74,59,50,.12)}
+
+    /* Bancada */
+    .bench{gap:5px}
+    .segmented{padding:2px;gap:2px}
+    .seg{padding:4px 8px;font-size:.66rem}
+    .table{width:min(100%, 56dvh, 230px)}
+    .table::before{inset:6%}
+    .hint{font-size:.62rem;min-height:0;line-height:1.2}
+    .actions{gap:6px}
+    .btn{padding:6px 12px;font-size:.72rem;box-shadow:0 3px 0 rgba(74,59,50,.14)}
+
+    /* Potes */
+    .pantry{gap:6px}
+    .tabs{gap:4px}
+    .tab{padding:4px 2px;font-size:.6rem;border-radius:10px}
+    .pot-grid{gap:5px;padding:2px 1px 4px;grid-template-columns:repeat(3,1fr)}
+    .pot{padding:4px 2px;border-radius:12px;gap:2px;box-shadow:0 3px 6px -4px rgba(74,59,50,.4)}
+    .pot svg{width:38px;height:38px}
+    .pot span{font-size:.65rem;line-height:1}
+    .badge{font-size:.5rem;padding:0 4px;top:-4px;right:-2px}
+
+    .toast{bottom:10px;font-size:.8rem;padding:8px 16px}
+    .start-title{font-size:2rem}
+    .start-sub{font-size:.85rem}
+    .start-btn{padding:10px 36px;font-size:1.1rem}
+    .start-art{width:150px}
+    .start-card{gap:8px}
+  }
+
+  /* ---------- Plano B: aviso para girar o celular ---------- */
+  @media (max-width:900px) and (orientation:portrait){
+    .rotate-overlay{display:grid}
+  }
+
+  @media (hover:none){
+    .pot:hover,.tab:hover,.seg:hover,.skin-pill:hover,.btn:hover,.start-btn:hover,.pill:hover{transform:none}
   }
 </style>
 </head>
 <body>
 
-<div class="app">
+<!-- ========== AVISO PARA GIRAR (plano B, só em pé) ========== -->
+<section class="rotate-overlay" id="rotateOverlay" aria-live="polite">
+  <div class="rotate-card">
+    <div class="rotate-phone" aria-hidden="true">
+      <svg viewBox="0 0 34 34">
+        <circle cx="17" cy="17" r="15" fill="#F4ACB7"/>
+        <circle cx="17" cy="17" r="11" fill="#FFF1C1"/>
+        <path d="M17 17 L17 8 A9 9 0 0 1 25.4 21.5Z" fill="#F4ACB7"/>
+        <circle cx="13" cy="15" r="1.6" fill="#D8E2DC"/>
+        <circle cx="20" cy="20" r="1.6" fill="#D8E2DC"/>
+      </svg>
+    </div>
+    <h2 class="rotate-title">Gire o celular ♡</h2>
+    <p class="rotate-sub">A Lele's Pizzaria fica mais gostosinha na horizontal. Vire o aparelho para montar as pizzas!</p>
+  </div>
+</section>
+
+<!-- ========== TELA INICIAL ========== -->
+<section class="start" id="start">
+  <div class="start-deco" aria-hidden="true" id="startDeco"></div>
+  <div class="start-card">
+    <svg class="start-art" viewBox="0 0 220 220" aria-hidden="true">
+      <circle cx="110" cy="112" r="96" fill="#E7B878"/>
+      <circle cx="110" cy="112" r="84" fill="#F7E2B8"/>
+      <circle cx="110" cy="112" r="76" fill="#F2A596"/>
+      <circle cx="110" cy="112" r="76" fill="none" stroke="#FFF9EF" stroke-opacity=".35" stroke-width="6"/>
+      <g fill="#FFFBF0" stroke="#E6D3B8" stroke-width="1.2">
+        <ellipse cx="80" cy="92" rx="11" ry="8"/>
+        <ellipse cx="128" cy="86" rx="10" ry="7"/>
+        <ellipse cx="112" cy="126" rx="12" ry="8"/>
+        <ellipse cx="76" cy="132" rx="9" ry="6"/>
+        <ellipse cx="142" cy="130" rx="8" ry="6"/>
+      </g>
+      <g fill="#E58F7C" stroke="#C4705E" stroke-width="1">
+        <circle cx="96" cy="112" r="7"/>
+        <circle cx="132" cy="106" r="6"/>
+        <circle cx="120" cy="150" r="6"/>
+      </g>
+      <g fill="#A8D5B5" stroke="#86B895" stroke-width=".8">
+        <path d="M62 150Q70 140 78 150Q70 158 62 150Z"/>
+        <path d="M150 116Q158 106 166 116Q158 124 150 116Z"/>
+      </g>
+      <path d="M160 58 C152 46 138 50 140 62 C141 70 160 80 160 80 C160 80 179 70 180 62 C182 50 168 46 160 58Z" fill="#F4ACB7" stroke="#E08E9D" stroke-width="1"/>
+      <path d="M48 68 L50 74 L56 76 L50 78 L48 84 L46 78 L40 76 L46 74Z" fill="#FFF1C1" stroke="#E6D29B" stroke-width=".6"/>
+      <path d="M190 150 L192 155 L197 157 L192 159 L190 164 L188 159 L183 157 L188 155Z" fill="#D8E2DC" stroke="#A8C4B5" stroke-width=".6"/>
+    </svg>
+    <h1 class="start-title">Lele's <span>Pizzaria</span></h1>
+    <p class="start-sub">Monte a pizza dos seus clientes com carinho ♡</p>
+    <button class="start-btn" id="playBtn">Jogar</button>
+  </div>
+</section>
+
+<!-- ========== JOGO ========== -->
+<div class="app hidden" id="app">
   <header class="top">
     <div class="brand">
       <svg viewBox="0 0 40 40" width="36" height="36" aria-hidden="true">
@@ -339,27 +586,20 @@
         <circle cx="16" cy="18" r="2" fill="#D8E2DC"/>
         <circle cx="24" cy="24" r="2" fill="#D8E2DC"/>
       </svg>
-      Pizzaria Fofa
+      Lele's Pizzaria
     </div>
-
-    <!-- Barra de teste: alterna o tipo de cliente -->
-    <nav class="testbar" id="testbar">
-      <span>Teste</span>
-      <button data-modo="random" class="on">Cliente Aleatório</button>
-      <button data-modo="arthur">Arthur</button>
-      <button data-modo="leticia">Letícia</button>
-      <button data-modo="dupla">Arthur & Letícia</button>
-    </nav>
   </header>
 
   <aside class="counter panel">
-    <div class="comanda">
-      <div class="comanda-head"><span id="ticket"></span><span>Comanda</span></div>
-      <div id="avatarArea"></div>
-      <div class="skins" id="skins"></div>
-      <div class="client" id="client"></div>
-      <div class="bubble" id="say"></div>
-      <ul class="items" id="items"></ul>
+    <div class="comanda-wrap">
+      <div class="comanda">
+        <div class="comanda-head"><span id="ticket"></span><span>Comanda</span></div>
+        <div id="avatarArea"></div>
+        <div class="skins" id="skins"></div>
+        <div class="client" id="client"></div>
+        <div class="bubble" id="say"></div>
+        <ul class="items" id="items"></ul>
+      </div>
     </div>
     <div class="nav">
       <button class="pill" id="nextClient">Trocar cliente ›</button>
@@ -372,8 +612,10 @@
       <button class="seg" data-at="left">Metade Esquerda</button>
       <button class="seg" data-at="right">Metade Direita</button>
     </div>
-    <div class="table"><div id="board" style="width:100%;height:100%;display:grid;place-items:center"></div></div>
-    <p class="hint">Escolha a área acima e toque nos potes. Toque de novo para tirar.</p>
+    <div class="table">
+      <div id="board"><svg class="pizza" id="pizzaSvg" viewBox="0 0 400 400" role="img" aria-label="Pizza em montagem"></svg></div>
+    </div>
+    <p class="hint" id="hint">Toque em um pote para escolher o ingrediente.</p>
     <div class="actions">
       <button class="btn btn-clear" id="clear">Limpar Massa</button>
       <button class="btn btn-deliver" id="deliver">Finalizar / Entregar Pizza</button>
@@ -392,10 +634,10 @@
       <rect x="22" y="78" width="176" height="84" rx="12" fill="#F6E7D0" stroke="#D9BF9C" stroke-width="3"/>
       <rect x="40" y="96" width="140" height="10" rx="5" fill="#EFD9BC"/>
       <circle cx="110" cy="132" r="22" fill="#F4ACB7"/>
-      <text x="110" y="136" text-anchor="middle" font-size="12" font-weight="600" fill="#4A3B32">Fofa</text>
+      <text x="110" y="136" text-anchor="middle" font-size="12" font-weight="600" fill="#4A3B32">Lele</text>
       <g class="lid">
         <rect x="16" y="38" width="188" height="42" rx="10" fill="#FFF1C1" stroke="#E6D29B" stroke-width="3"/>
-        <text x="110" y="64" text-anchor="middle" font-size="16" font-weight="600" fill="#4A3B32">Pizzaria Fofa</text>
+        <text x="110" y="64" text-anchor="middle" font-size="15" font-weight="600" fill="#4A3B32">Lele's Pizzaria</text>
       </g>
     </svg>
   </div>
@@ -405,84 +647,55 @@
 
 <script>
 /* =========================================================
-   1. TRAÇOS FÍSICOS DOS VIPs (Personalizados)
+   1. TRAÇOS FÍSICOS DOS VIPs
    ========================================================= */
 
-// ---------- ARTHUR ----------
 const ARTHUR_CFG = {
-  pele:   '#F3D0B5', // tom de pele
-  cabelo: '#3A2B22', // castanho-escuro com redemoinho e franja desfiada
-  olhos:  '#6B8271', // verde-acinzentado
+  pele:   '#F3D0B5',
+  cabelo: '#3A2B22',
+  olhos:  '#6B8271',
   pupila: '#2E3631',
 };
 
-// ---------- LETÍCIA ----------
 const LETICIA_CFG = {
-  pele:   '#F1C6A7', // tom de pele
-  cabelo: '#36241B', // castanho-escuro longo ondulado
-  olhos:  '#3B261C', // castanho escuro
+  pele:   '#F1C6A7',
+  cabelo: '#36241B',
+  olhos:  '#3B261C',
   brinco: '#E5C17B',
 };
 
 /* =========================================================
-   2. CATÁLOGO DE SKINS (Casual, Encontro e Neve)
+   2. CATÁLOGO DE SKINS
    ========================================================= */
 
 const SKINS = {
   arthur: {
     casual: {
-      nome: 'Casual',
-      bg: '#E2ECE9',
-      roupaTipo: 'camiseta',
-      roupa: '#3B393D',
-      accent: '#5C585E',
-      acessorios: [],
+      nome: 'Casual', bg: '#E2ECE9', roupaTipo: 'camiseta',
+      roupa: '#3B393D', accent: '#5C585E', acessorios: [],
     },
     encontro: {
-      nome: 'Encontro',
-      bg: '#D8E2DC',
-      roupaTipo: 'jaqueta',
-      roupa: '#2F2D30',
-      accent: '#FAF6F0',
-      acessorios: ['brilho'],
+      nome: 'Encontro', bg: '#D8E2DC', roupaTipo: 'jaqueta',
+      roupa: '#2F2D30', accent: '#FAF6F0', acessorios: ['brilho'],
     },
     neve: {
-      nome: 'Neve',
-      bg: '#DCE8F2',
-      roupaTipo: 'moletomNeve',
-      roupa: '#9CB8D4',
-      accent: '#F5F9FC',
-      capuz: true,
+      nome: 'Neve', bg: '#DCE8F2', roupaTipo: 'moletomNeve',
+      roupa: '#9CB8D4', accent: '#F5F9FC', capuz: true,
       acessorios: ['cachecol', 'flocos'],
     },
   },
   leticia: {
     casual: {
-      nome: 'Casual',
-      bg: '#FDECE2',
-      roupaTipo: 'regata',
-      roupa: '#EFE4D2',
-      accent: '#D8C5A8',
-      colar: true,
-      acessorios: [],
+      nome: 'Casual', bg: '#FDECE2', roupaTipo: 'regata',
+      roupa: '#EFE4D2', accent: '#D8C5A8', colar: true, acessorios: [],
     },
     encontro: {
-      nome: 'Encontro',
-      bg: '#F9D3DC',
-      roupaTipo: 'regata',
-      roupa: '#3E3A3D',
-      accent: '#F4ACB7',
-      colar: true,
-      acessorios: ['brilho'],
+      nome: 'Encontro', bg: '#F9D3DC', roupaTipo: 'regata',
+      roupa: '#3E3A3D', accent: '#F4ACB7', colar: true, acessorios: ['brilho'],
     },
     neve: {
-      nome: 'Neve',
-      bg: '#EAE4F2',
-      roupaTipo: 'moletomNeve',
-      roupa: '#F2C6D4',
-      accent: '#FFF9FB',
-      capuz: true,
-      colar: false,
+      nome: 'Neve', bg: '#EAE4F2', roupaTipo: 'moletomNeve',
+      roupa: '#F2C6D4', accent: '#FFF9FB', capuz: true, colar: false,
       acessorios: ['cachecol', 'flocos'],
     },
   },
@@ -510,13 +723,11 @@ function roupaSVG(tipo, cor, accent, pele){
     <circle cx="53" cy="107" r="2" fill="${accent}"/>
     <circle cx="67" cy="107" r="2" fill="${accent}"/>`;
 
-  // camiseta (padrão)
   return `
     <path d="M16 120 Q18 88 60 86 Q102 88 104 120 Z" fill="${cor}"/>
     <path d="M48 87 Q60 96 72 87" fill="none" stroke="${accent}" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>`;
 }
 
-// Capuz fofo atrás da cabeça para a skin de neve
 const capuzSVG = (cor, accent) => `
   <path d="M23 86 Q18 30 60 22 Q102 30 97 86 Q82 72 60 72 Q38 72 23 86 Z" fill="${cor}"/>
   <path d="M25 84 Q21 33 60 25 Q99 33 95 84" fill="none" stroke="${accent}" stroke-width="4.5" stroke-linecap="round"/>`;
@@ -543,71 +754,37 @@ function acessoriosSVG(lista, accent){
 }
 
 /* =========================================================
-   4. DESENHO DO ARTHUR (Cabelo leve com redemoinho e franja desfiada)
+   4. DESENHO DO ARTHUR
    ========================================================= */
 function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual){
   const accent = skin.accent || '#F4ACB7';
 
-  // ---- CAMADA 1: ROUPA ----
   const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent, c.pele);
-
-  // ---- CAMADA 2: CAPUZ (neve) ----
   const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
 
-  // ---- CAMADA 3: CABELO DE TRÁS (volume arredondado com mechas soltas no topo e laterais) ----
   const cabeloTras = `
-    <path d="M34 62
-             L33 52
-             Q29 48 32 43
-             Q29 37 34 31
-             Q34 26 40 24
-             Q47 18 55 20
-             Q62 14 71 17
-             Q66 18 63 20
-             Q70 16 77 20
-             Q73 20 69 21
-             Q78 21 83 26
-             Q87 28 86 32
-             Q91 38 88 44
-             Q91 48 87 52
-             L86 62 Z" fill="${c.cabelo}"/>`;
+    <path d="M34 62 L33 52 Q29 48 32 43 Q29 37 34 31 Q34 26 40 24 Q47 18 55 20
+             Q62 14 71 17 Q66 18 63 20 Q70 16 77 20 Q73 20 69 21 Q78 21 83 26
+             Q87 28 86 32 Q91 38 88 44 Q91 48 87 52 L86 62 Z" fill="${c.cabelo}"/>`;
 
-  // ---- CAMADA 4: PESCOÇO E ORELHAS ----
   const pescoco = `
     <rect x="52" y="75" width="16" height="16" rx="6" fill="${c.pele}"/>
     <ellipse cx="35" cy="58" rx="3.2" ry="5" fill="${c.pele}"/>
     <ellipse cx="85" cy="58" rx="3.2" ry="5" fill="${c.pele}"/>`;
 
-  // ---- CAMADA 5: ROSTO ----
   const rosto = `<ellipse cx="60" cy="56" rx="24.5" ry="26.5" fill="${c.pele}"/>`;
 
-  // ---- CAMADA 6: CABELO DA FRENTE (franja fina e desfiada irradiando do redemoinho) ----
   const cabeloFrente = `
     <path d="M35.5 44 L35 58 L38.5 48 Z" fill="${c.cabelo}"/>
     <path d="M84.5 44 L85 58 L81.5 48 Z" fill="${c.cabelo}"/>
-    <path d="M55 20.5
-             Q42 20 35 30
-             Q30 39 34 49
-             L36.5 45 L38.5 50
-             L41.5 45 L44.5 51
-             L47.5 45.5 L51 51.5
-             L54 46 L58.5 52
-             L61 46.5 L65 51.5
-             L68 46 L72.5 51
-             L75 45.5 L79 50
-             L81 45 L84.5 49
-             Q89 39 85 30
-             Q78 20 55 20.5 Z" fill="${c.cabelo}"/>
+    <path d="M55 20.5 Q42 20 35 30 Q30 39 34 49 L36.5 45 L38.5 50 L41.5 45 L44.5 51
+             L47.5 45.5 L51 51.5 L54 46 L58.5 52 L61 46.5 L65 51.5 L68 46 L72.5 51
+             L75 45.5 L79 50 L81 45 L84.5 49 Q89 39 85 30 Q78 20 55 20.5 Z" fill="${c.cabelo}"/>
     <path d="M56 21.5 Q71 25.5 83 38.5 Q75 39.5 66 33.5 Q60 28.5 56 21.5 Z" fill="${c.cabelo}"/>
-    <path d="M55 21 Q47 30 45 47
-             M55 21 Q52 32 52 48
-             M55 21 Q58 33 63 48
-             M55 21 Q65 30 72 47
-             M52 22 Q40 28 37 44
-             M58 22 Q73 27 81 43"
+    <path d="M55 21 Q47 30 45 47 M55 21 Q52 32 52 48 M55 21 Q58 33 63 48 M55 21 Q65 30 72 47
+             M52 22 Q40 28 37 44 M58 22 Q73 27 81 43"
           stroke="#231812" stroke-width="1" stroke-linecap="round" fill="none" opacity=".45"/>`;
 
-  // ---- CAMADA 7: SOBRANCELHAS RETAS E OLHOS CLAROS ----
   const olhos = `
     <path d="M44 51 L55.5 51.5" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
     <path d="M64.5 51.5 L76 51" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
@@ -618,13 +795,11 @@ function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual){
     <circle cx="51.4" cy="55.9" r=".9" fill="#fff"/>
     <circle cx="70.4" cy="55.9" r=".9" fill="#fff"/>`;
 
-  // ---- CAMADA 8: BOCHECHAS E SORRISO ----
   const detalhes = `
     <ellipse cx="43" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
     <ellipse cx="77" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
     <path d="M53 68 Q60 72.5 67 67.5" stroke="#5A4338" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
 
-  // ---- CAMADA 9: ACESSÓRIOS DA SKIN ----
   const acessorios = acessoriosSVG(skin.acessorios || [], accent);
 
   return `<svg viewBox="0 0 120 120" aria-hidden="true">
@@ -634,45 +809,37 @@ function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual){
 }
 
 /* =========================================================
-   5. DESENHO DA LETÍCIA (Cabelo atrás da roupa)
+   5. DESENHO DA LETÍCIA
    ========================================================= */
 function drawLeticia(c = LETICIA_CFG, skin = SKINS.leticia.casual){
   const accent = skin.accent || '#F4ACB7';
-
-    // Brincos: a skin pode trocar a cor; se não trocar, usa a do físico
   const brinco = skin.brinco ?? c.brinco;
+
+  const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
+
+  const cabeloTras = `
+    <path d="M30 58 Q24 88 30 116 Q44 112 60 116 Q76 112 90 116 Q96 88 90 58 Q88 22 60 22 Q32 22 30 58 Z" fill="${c.cabelo}"/>
+    <path d="M29 74 Q23 86 28 98 M91 74 Q97 86 92 98" stroke="${c.cabelo}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+
+  const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent, c.pele);
+
+  const pescoco = `<rect x="52" y="75" width="16" height="16" rx="6" fill="${c.pele}"/>`;
+  const colar = skin.colar ? `
+    <path d="M48 85 Q60 95 72 85" fill="none" stroke="#E5C17B" stroke-width="1.2"/>
+    <circle cx="60" cy="90.5" r="1.5" fill="#E5C17B"/>` : '';
+
+  const rosto = `<ellipse cx="60" cy="56" rx="23.5" ry="25.5" fill="${c.pele}"/>`;
+
+  const cabeloFrente = `
+    <path d="M60 27 Q43 29 35 48 Q32 65 36 84 Q39 63 43 48 Q48 36 60 32 Z" fill="${c.cabelo}"/>
+    <path d="M60 27 Q77 29 85 48 Q88 65 84 84 Q81 63 77 48 Q72 36 60 32 Z" fill="${c.cabelo}"/>`;
+
   const brincos = brinco ? `
     <g fill="${brinco}" stroke="#C9A35E" stroke-width=".6">
       <circle cx="36" cy="68" r="2.4"/>
       <circle cx="84" cy="68" r="2.4"/>
     </g>` : '';
 
-  // ---- CAMADA 1: CAPUZ (neve) ----
-  const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
-
-  // ---- CAMADA 2: CABELO DE TRÁS (atrás dos ombros e da roupa) ----
-  const cabeloTras = `
-    <path d="M30 58 Q24 88 30 116 Q44 112 60 116 Q76 112 90 116 Q96 88 90 58 Q88 22 60 22 Q32 22 30 58 Z" fill="${c.cabelo}"/>
-    <path d="M29 74 Q23 86 28 98 M91 74 Q97 86 92 98" stroke="${c.cabelo}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
-
-  // ---- CAMADA 3: ROUPA (desenhada por cima do cabelo de trás) ----
-  const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent, c.pele);
-
-  // ---- CAMADA 4: PESCOÇO E COLAR DELICADO ----
-  const pescoco = `<rect x="52" y="75" width="16" height="16" rx="6" fill="${c.pele}"/>`;
-  const colar = skin.colar ? `
-    <path d="M48 85 Q60 95 72 85" fill="none" stroke="#E5C17B" stroke-width="1.2"/>
-    <circle cx="60" cy="90.5" r="1.5" fill="#E5C17B"/>` : '';
-
-  // ---- CAMADA 5: ROSTO ----
-  const rosto = `<ellipse cx="60" cy="56" rx="23.5" ry="25.5" fill="${c.pele}"/>`;
-
-  // ---- CAMADA 6: CABELO DA FRENTE (repartido ao meio, emoldurando o rosto) ----
-  const cabeloFrente = `
-    <path d="M60 27 Q43 29 35 48 Q32 65 36 84 Q39 63 43 48 Q48 36 60 32 Z" fill="${c.cabelo}"/>
-    <path d="M60 27 Q77 29 85 48 Q88 65 84 84 Q81 63 77 48 Q72 36 60 32 Z" fill="${c.cabelo}"/>`;
-
-  // ---- CAMADA 7: SOBRANCELHAS MARCANTES E OLHOS ----
   const olhos = `
     <path d="M44 50 Q50 47 56 49.5" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
     <path d="M64 49.5 Q70 47 76 50" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
@@ -681,23 +848,19 @@ function drawLeticia(c = LETICIA_CFG, skin = SKINS.leticia.casual){
     <circle cx="51.3" cy="54.9" r=".9" fill="#fff"/>
     <circle cx="70.3" cy="54.9" r=".9" fill="#fff"/>`;
 
-  // ---- CAMADA 8: BOCHECHAS E SORRISO ABERTO ----
   const detalhes = `
     <ellipse cx="43" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
     <ellipse cx="77" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
     <path d="M51 66 Q60 75 69 66 Z" fill="#FFFFFF" stroke="#C96F78" stroke-width="1.6" stroke-linejoin="round"/>`;
 
-  // ---- CAMADA 9: ACESSÓRIOS DA SKIN ----
   const acessorios = acessoriosSVG(skin.acessorios || [], accent);
 
-    return `<svg viewBox="0 0 120 120" aria-hidden="true">
+  return `<svg viewBox="0 0 120 120" aria-hidden="true">
     ${capuz}${cabeloTras}${roupa}${pescoco}${colar}${rosto}${cabeloFrente}
-    ${brincos}
-    ${olhos}${detalhes}${acessorios}
+    ${brincos}${olhos}${detalhes}${acessorios}
   </svg>`;
 }
 
-// Brilhos e coração entre Arthur e Letícia
 const SPARKLES_HTML = `
   <div class="sparkles" aria-hidden="true">
     <svg viewBox="-10 -10 20 20" class="heart"><path d="M0 6C-8 0-6-6 0-3C6-6 8 0 0 6Z" fill="#F4ACB7"/></svg>
@@ -717,60 +880,98 @@ const TABS = [
 ];
 
 const ITEMS = {
-  molho:        { name:'Molho de tomate',    tab:'bases',     layer:'base',      color:'#F2A596', sprite:'sauce' },
-  creme:        { name:'Creme branco',       tab:'bases',     layer:'base',      color:'#FFF9EF', sprite:'sauce' },
-  mussarela:    { name:'Mussarela ralada',   tab:'bases',     layer:'queijo',    color:'#FFFBF0', sprite:'blob',    count:16 },
-  cream:        { name:'Cream cheese',       tab:'bases',     layer:'queijo',    color:'#FFF4E3', sprite:'blob',    count:9 },
-  ganache:      { name:'Ganache ao leite',   tab:'bases',     layer:'cobertura', color:'#A9775A', sprite:'drizzle', count:3, scale:1.7 },
+  molho:        { name:'Molho de tomate',    tab:'bases',     layer:'base',      kind:'liquido', color:'#F2A596', sprite:'sauce' },
+  creme:        { name:'Creme branco',       tab:'bases',     layer:'base',      kind:'liquido', color:'#FFF9EF', sprite:'sauce' },
+  mussarela:    { name:'Mussarela ralada',   tab:'bases',     layer:'queijo',    kind:'solido',  color:'#FFFBF0', sprite:'blob',    count:16 },
+  cream:        { name:'Cream cheese',       tab:'bases',     layer:'queijo',    kind:'solido',  color:'#FFF4E3', sprite:'blob',    count:9 },
+  ganache:      { name:'Ganache ao leite',   tab:'bases',     layer:'cobertura', kind:'solido',  color:'#A9775A', sprite:'drizzle', count:3, scale:1.7 },
 
-  calabresa:    { name:'Calabresa',          tab:'classicos', layer:'cobertura', color:'#E58F7C', sprite:'slice',   count:11 },
-  manjericao:   { name:'Manjericão',         tab:'classicos', layer:'cobertura', color:'#A8D5B5', sprite:'leaf',    count:10 },
-  tomatecereja: { name:'Tomate-cereja',      tab:'classicos', layer:'cobertura', color:'#EF7F7A', sprite:'cherry',  count:8 },
+  calabresa:    { name:'Calabresa',          tab:'classicos', layer:'cobertura', kind:'solido',  color:'#E58F7C', sprite:'slice',   count:11 },
+  manjericao:   { name:'Manjericão',         tab:'classicos', layer:'cobertura', kind:'solido',  color:'#A8D5B5', sprite:'leaf',    count:10 },
+  tomatecereja: { name:'Tomate-cereja',      tab:'classicos', layer:'cobertura', kind:'solido',  color:'#EF7F7A', sprite:'cherry',  count:8 },
 
-  batata:       { name:'Batata frita',       tab:'especiais', layer:'cobertura', color:'#F6CD6A', sprite:'stick',   count:16 },
-  cheddar:      { name:'Cheddar cremoso',    tab:'especiais', layer:'queijo',    color:'#F5B649', sprite:'drip',    count:8 },
-  bacon:        { name:'Bacon',              tab:'especiais', layer:'cobertura', color:'#EBA5A0', sprite:'bacon',   count:8 },
-  salmao:       { name:'Salmão fresco',      tab:'especiais', layer:'cobertura', color:'#F7A58A', sprite:'cube',    count:8 },
-  cebolinha:    { name:'Cebolinha',          tab:'especiais', layer:'cobertura', color:'#9CCBA6', sprite:'rod',     count:14 },
-  gergelim:     { name:'Gergelim',           tab:'especiais', layer:'cobertura', color:'#FFF1D6', sprite:'seed',    count:24 },
-  tare:         { name:'Molho tarê',         tab:'especiais', layer:'cobertura', color:'#8B5A3C', sprite:'drizzle', count:3, scale:1.7 },
+  batata:       { name:'Batata frita',       tab:'especiais', layer:'cobertura', kind:'solido',  color:'#F6CD6A', sprite:'stick',   count:16 },
+  cheddar:      { name:'Cheddar cremoso',    tab:'especiais', layer:'queijo',    kind:'solido',  color:'#F5B649', sprite:'drip',    count:8 },
+  bacon:        { name:'Bacon',              tab:'especiais', layer:'cobertura', kind:'solido',  color:'#EBA5A0', sprite:'bacon',   count:8 },
+  salmao:       { name:'Salmão fresco',      tab:'especiais', layer:'cobertura', kind:'solido',  color:'#F7A58A', sprite:'cube',    count:8 },
+  cebolinha:    { name:'Cebolinha',          tab:'especiais', layer:'cobertura', kind:'solido',  color:'#9CCBA6', sprite:'rod',     count:14 },
+  gergelim:     { name:'Gergelim',           tab:'especiais', layer:'cobertura', kind:'solido',  color:'#FFF1D6', sprite:'seed',    count:24 },
+  tare:         { name:'Molho tarê',         tab:'especiais', layer:'cobertura', kind:'solido',  color:'#8B5A3C', sprite:'drizzle', count:3, scale:1.7 },
 
-  uva:          { name:'Uva verde',          tab:'doces',     layer:'cobertura', color:'#B7DB9C', sprite:'grape',   count:10 },
-  morango:      { name:'Morango',            tab:'doces',     layer:'cobertura', color:'#F28B94', sprite:'berry',   count:8 },
+  uva:          { name:'Uva verde',          tab:'doces',     layer:'cobertura', kind:'solido',  color:'#B7DB9C', sprite:'grape',   count:10 },
+  morango:      { name:'Morango',            tab:'doces',     layer:'cobertura', kind:'solido',  color:'#F28B94', sprite:'berry',   count:8 },
 };
 
 const F = (...ids) => ids.map(id => ({ id, at:'full' }));
 
 const RANDOM_CLIENTS = [
-  { nome:'Dona Lúcia', look:{ skin:'#F1C7A5', hair:'#8A6A5A', style:'bun',   shirt:'#D8E2DC', bg:'#E2ECE9' },
-    pedidos:[{ say:'Quero uma clássica bem gostosinha, com manjericão fresquinho!', items:F('molho','mussarela','manjericao','tomatecereja') }] },
-  { nome:'Tião', look:{ skin:'#E8B894', hair:'#3E3029', style:'short', shirt:'#F4ACB7', bg:'#FDECE2' },
-    pedidos:[{ say:'Bota batata frita em tudo, com cheddar e bacon. Pode?', items:F('batata','cheddar','bacon') }] },
-  { nome:'Mari', look:{ skin:'#F6D3B6', hair:'#5B4336', style:'bob',   shirt:'#D9CCE8', bg:'#FDECE2' },
-    pedidos:[{ say:'Quero uma de sushi bem caprichada, com tarê por cima!', items:F('cream','salmao','cebolinha','gergelim','tare') }] },
-  { nome:'Pedro', look:{ skin:'#D9A77F', hair:'#2F2420', style:'curly', shirt:'#D8E2DC', bg:'#FFF1C1' },
-    pedidos:[{ say:'Quero bombom de uva! Creme branco, chocolate e bem doce!', items:F('creme','uva','ganache') }] },
+  { nome:'Lucas',
+    look:{ skin:'#F1C7A5', hair:'#5A4032', style:'curta',    shirt:'#A8D5B5', bg:'#E2ECE9', extra:'oculos' },
+    pedidos:[
+      { say:'E aí! Hoje quero uma calabresa com bastante mussarela, bem caprichada.', items:F('molho','mussarela','calabresa') },
+      { say:'Bora de clássica: molho, mussarela e manjericão fresquinho!', items:F('molho','mussarela','manjericao') },
+    ] },
+  { nome:'Bia',
+    look:{ skin:'#E8B894', hair:'#8A4B2E', style:'rabo',     shirt:'#F4ACB7', bg:'#FDECE2', extra:'sardas' },
+    pedidos:[
+      { say:'Oi! Quero uma de batata frita com cheddar, pode ser?', items:F('batata','cheddar') },
+      { say:'Metade batata frita, metade calabresa, por favor! Uma por lado.',
+        items:[ { id:'batata', at:'left' }, { id:'cheddar', at:'left' }, { id:'calabresa', at:'right' }, { id:'mussarela', at:'right' } ] },
+    ] },
+  { nome:'Gabriel',
+    look:{ skin:'#D9A77F', hair:'#2F2420', style:'cacheada',  shirt:'#D8E2DC', bg:'#FFF1C1', extra:'gorro' },
+    pedidos:[
+      { say:'Quero uma pizza de tomate-cereja com manjericão, bem leve!', items:F('molho','tomatecereja','manjericao') },
+      { say:'Me vê uma de bacon com cebolinha? Bem fresquinha!', items:F('bacon','cebolinha') },
+    ] },
+  { nome:'Júlia',
+    look:{ skin:'#F6D3B6', hair:'#5B4336', style:'franja',   shirt:'#D9CCE8', bg:'#FDECE2', extra:'presilha' },
+    pedidos:[
+      { say:'Hoje é dia de cream cheese com salmão, por favor!', items:F('cream','salmao','cebolinha') },
+      { say:'Quero metade doce e metade salgada! Morango de um lado e mussarela do outro.',
+        items:[ { id:'morango', at:'left' }, { id:'mussarela', at:'right' }, { id:'molho', at:'right' } ] },
+    ] },
+  { nome:'Mateus',
+    look:{ skin:'#E0B088', hair:'#1F1A17', style:'curta',     shirt:'#E2ECE9', bg:'#DCE8F2', extra:'sardas' },
+    pedidos:[
+      { say:'Fala! Calabresa com mussarela, sem frescura.', items:F('molho','mussarela','calabresa') },
+      { say:'Quero uma de batata frita com bacon. Sem economizar no bacon!', items:F('batata','bacon') },
+    ] },
+  { nome:'Camila',
+    look:{ skin:'#F3CBA8', hair:'#B0744A', style:'ondulada',  shirt:'#FFF1C1', bg:'#FFF1C1', extra:'brinco' },
+    pedidos:[
+      { say:'Pode ser a de bombom de uva? Creme branco, uva e ganache, por favor!', items:F('creme','uva','ganache') },
+      { say:'Metade doce, metade salgada: uva de um lado e manjericão do outro!',
+        items:[ { id:'creme', at:'left' }, { id:'uva', at:'left' }, { id:'manjericao', at:'right' }, { id:'molho', at:'right' } ] },
+    ] },
+  { nome:'Rafael',
+    look:{ skin:'#C98E63', hair:'#241A14', style:'rabo',      shirt:'#F4ACB7', bg:'#E2ECE9', extra:'oculos' },
+    pedidos:[
+      { say:'Me manda uma de tomate-cereja com manjericão. Bem simples!', items:F('molho','tomatecereja','manjericao') },
+      { say:'Quero uma com salmão e gergelim, sem medo!', items:F('cream','salmao','gergelim','tare') },
+    ] },
+  { nome:'Larissa',
+    look:{ skin:'#F1C6A7', hair:'#6E4530', style:'coque',     shirt:'#A8D5B5', bg:'#F9D3DC', extra:'sardas' },
+    pedidos:[
+      { say:'Oi, tudo bem? Quero uma de batata frita com cheddar, por favor!', items:F('batata','cheddar') },
+      { say:'Uma de morango com creme, bem docinha!', items:F('creme','morango') },
+    ] },
 ];
 
 const CLIENTES_VIP = {
   arthur: {
     nome:'Arthur',
     pedidos:[
-      { say:'E aí, parceiro! Hoje é dia de calabresa com bastante mussarela, bora?',
-        items:F('molho','mussarela','calabresa') },
-      { say:'Nada de sushi pra mim, hein! Quero uma de batata frita com cheddar e bacon.',
-        items:F('batata','cheddar','bacon') },
+      { say:'E aí, parceiro! Hoje é dia de calabresa com bastante mussarela, bora?', items:F('molho','mussarela','calabresa') },
+      { say:'Nada de sushi pra mim, hein! Quero uma de batata frita com cheddar e bacon.', items:F('batata','cheddar','bacon') },
     ],
   },
   leticia: {
     nome:'Letícia',
     pedidos:[
-      { say:'Oi, oi! Hoje eu quero a de Bombom de Uva, bem cremosa!',
-        items:F('creme','uva','ganache') },
-      { say:'Me vê uma Pizza de Sushi? Com bastante tarê, por favor!',
-        items:F('cream','salmao','cebolinha','gergelim','tare') },
-      { say:'Batata frita com cheddar e bacon, que dia lindo pra isso!',
-        items:F('batata','cheddar','bacon') },
+      { say:'Oi, oi! Hoje eu quero a de Bombom de Uva, bem cremosa!', items:F('creme','uva','ganache') },
+      { say:'Me vê uma Pizza de Sushi? Com bastante tarê, por favor!', items:F('cream','salmao','cebolinha','gergelim','tare') },
+      { say:'Batata frita com cheddar e bacon, que dia lindo pra isso!', items:F('batata','cheddar','bacon') },
     ],
   },
   dupla: {
@@ -790,9 +991,10 @@ const CLIENTES_VIP = {
 };
 
 /* =========================================================
-   7. UTILITÁRIOS: gerador determinístico e sprites da pizza
+   7. UTILITÁRIOS
    ========================================================= */
 
+const SVGNS = 'http://www.w3.org/2000/svg';
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
 function seeded(str){
@@ -846,29 +1048,6 @@ function sprite(type, color, r){
   }
 }
 
-function placements(id, at){
-  const it = ITEMS[id];
-  const r = seeded(id + '|' + at);
-  const base = it.count ?? 9;
-  const n = at === 'full' ? base : Math.max(3, Math.round(base * 0.6));
-  const out = [];
-  for (let i = 0; i < n; i++){
-    let ang;
-    if (at === 'left')       ang = Math.PI/2 + r() * Math.PI;
-    else if (at === 'right') ang = -Math.PI/2 + r() * Math.PI;
-    else                     ang = r() * Math.PI * 2;
-    const dist = Math.sqrt(r()) * 128;
-    out.push({
-      x: 200 + Math.cos(ang) * dist,
-      y: 200 + Math.sin(ang) * dist,
-      rot: r() * 360,
-      s: (it.scale ?? 1) * (0.85 + r() * 0.35),
-      sp: sprite(it.sprite, it.color, r),
-    });
-  }
-  return out;
-}
-
 function potArt(it){
   const body = it.layer === 'base'
     ? `<circle r="8" fill="${it.color}" stroke="#D8C3A8" stroke-width="1"/>`
@@ -879,32 +1058,67 @@ function potArt(it){
     <g transform="translate(0 -3) scale(1.25)">${body}</g>`;
 }
 
+/* ---------- Avatar dos clientes aleatórios (NPC simples e fofo) ---------- */
 function portrait(p){
-  const hair = {
-    bob:   `<path d="M32 62Q30 24 60 22Q90 24 88 62L90 92Q80 84 76 72L44 72Q40 84 30 92Z" fill="${p.hair}"/>`,
-    bun:   `<circle cx="60" cy="20" r="11" fill="${p.hair}"/>
-            <path d="M34 60Q32 26 60 26Q88 26 86 60Q80 40 60 40Q40 40 34 60Z" fill="${p.hair}"/>`,
-    curly: `<g fill="${p.hair}">
-              <circle cx="34" cy="50" r="12"/><circle cx="46" cy="32" r="13"/>
-              <circle cx="66" cy="28" r="13"/><circle cx="83" cy="40" r="12"/>
-              <circle cx="88" cy="60" r="10"/><circle cx="32" cy="70" r="9"/>
-            </g>`,
-    short: `<path d="M34 58Q32 26 60 26Q88 26 86 58Q80 42 60 42Q44 46 34 58Z" fill="${p.hair}"/>`,
-  }[p.style];
+  const c = p.hair;
+
+  const cabeloTras = {
+    curta:     `<path d="M34 56 Q32 26 60 25 Q88 26 86 56 L86 60 Q60 46 34 60 Z" fill="${c}"/>`,
+    rabo:      `<path d="M34 56 Q32 26 60 25 Q88 26 86 56 L86 60 Q60 46 34 60 Z" fill="${c}"/>
+               <path d="M80 44 Q100 50 96 82 Q90 88 86 78 Q92 60 80 52 Z" fill="${c}"/>`,
+    cacheada:  `<g fill="${c}"><circle cx="34" cy="48" r="10"/><circle cx="46" cy="32" r="11"/>
+                <circle cx="62" cy="27" r="11"/><circle cx="78" cy="33" r="11"/><circle cx="88" cy="50" r="10"/></g>`,
+    franja:    `<path d="M34 58 Q32 26 60 25 Q88 26 86 58 L86 66 Q60 56 34 66 Z" fill="${c}"/>`,
+    ondulada:  `<path d="M32 60 Q26 92 34 104 Q60 98 86 104 Q94 92 88 60 Q88 24 60 24 Q32 24 32 60 Z" fill="${c}"/>`,
+    coque:     `<circle cx="60" cy="22" r="11" fill="${c}"/>
+                <path d="M34 58 Q32 28 60 27 Q88 28 86 58 Q80 42 60 42 Q40 42 34 58 Z" fill="${c}"/>`,
+  }[p.style] || '';
+
+  const roupa = `
+    <path d="M18 120 Q22 88 60 86 Q98 88 102 120 Z" fill="${p.shirt}"/>
+    <path d="M50 88 Q60 96 70 88" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
+
+  const pescoco = `<rect x="52" y="76" width="16" height="16" rx="6" fill="${p.skin}"/>`;
+  const rosto = `<ellipse cx="60" cy="56" rx="24" ry="26" fill="${p.skin}"/>`;
+
+  const cabeloFrente = {
+    curta:    `<path d="M36 46 Q40 30 60 30 Q80 30 84 46 Q72 38 60 40 Q48 38 36 46 Z" fill="${c}"/>`,
+    rabo:     `<path d="M36 46 Q40 30 60 30 Q80 30 84 46 Q72 38 60 40 Q48 38 36 46 Z" fill="${c}"/>`,
+    cacheada: '',
+    franja:   `<path d="M34 48 Q38 30 60 30 Q82 30 86 48 L80 42 L72 46 L62 38 Q52 44 44 40 L38 46 Z" fill="${c}"/>`,
+    ondulada: `<path d="M36 48 Q40 30 60 30 Q80 30 84 48 Q72 40 60 42 Q48 40 36 48 Z" fill="${c}"/>`,
+    coque:    '',
+  }[p.style] || '';
+
+  const olhos = `
+    <circle cx="50" cy="57" r="2.6" fill="#3B2A22"/>
+    <circle cx="70" cy="57" r="2.6" fill="#3B2A22"/>
+    <circle cx="50.9" cy="56" r=".8" fill="#fff"/>
+    <circle cx="70.9" cy="56" r=".8" fill="#fff"/>`;
+
+  const detalhes = `
+    <ellipse cx="43" cy="66" rx="4" ry="2.4" fill="#F4ACB7" opacity=".6"/>
+    <ellipse cx="77" cy="66" rx="4" ry="2.4" fill="#F4ACB7" opacity=".6"/>
+    <path d="M53 68 Q60 73 67 68" stroke="#4A3B32" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+
+  const extra = {
+    oculos:   `<g fill="none" stroke="#7A6559" stroke-width="1.4">
+                 <circle cx="50" cy="57" r="6"/><circle cx="70" cy="57" r="6"/>
+                 <path d="M56 57 H64"/></g>`,
+    sardas:   `<g fill="#C98E63" opacity=".7">
+                 <circle cx="43" cy="61" r=".9"/><circle cx="46" cy="63" r=".9"/><circle cx="41" cy="64" r=".8"/>
+                 <circle cx="74" cy="61" r=".9"/><circle cx="77" cy="63" r=".9"/><circle cx="79" cy="64" r=".8"/></g>`,
+    gorro:    `<path d="M36 40 Q36 18 60 18 Q84 18 84 40 Z" fill="#F4ACB7"/>
+               <rect x="34" y="36" width="52" height="7" rx="3" fill="#FFF1C1"/>`,
+    presilha: `<path d="M76 34 L84 40 L80 44 L72 38 Z" fill="#E2ECE9" stroke="#A8C4B5" stroke-width=".8"/>`,
+    brinco:   `<circle cx="36" cy="68" r="2.2" fill="#FFF1C1" stroke="#C9A35E" stroke-width=".6"/>
+               <circle cx="84" cy="68" r="2.2" fill="#FFF1C1" stroke="#C9A35E" stroke-width=".6"/>`,
+  }[p.extra] || '';
 
   return `
   <svg viewBox="0 0 120 120" aria-hidden="true">
-    <path d="M18 120Q22 88 60 86Q98 88 102 120Z" fill="${p.shirt}"/>
-    <rect x="52" y="76" width="16" height="16" rx="6" fill="${p.skin}"/>
-    ${hair}
-    <ellipse cx="60" cy="56" rx="25" ry="27" fill="${p.skin}"/>
-    <circle cx="51" cy="56" r="3" fill="#4A3B32"/>
-    <circle cx="69" cy="56" r="3" fill="#4A3B32"/>
-    <circle cx="51.8" cy="54.8" r="1" fill="#fff"/>
-    <circle cx="69.8" cy="54.8" r="1" fill="#fff"/>
-    <ellipse cx="44" cy="65" rx="5" ry="3" fill="#F4ACB7" opacity=".7"/>
-    <ellipse cx="76" cy="65" rx="5" ry="3" fill="#F4ACB7" opacity=".7"/>
-    <path d="M53 67Q60 73 67 67" stroke="#4A3B32" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    ${roupa}${cabeloTras}${pescoco}${rosto}${cabeloFrente}
+    ${olhos}${detalhes}${extra}
   </svg>`;
 }
 
@@ -913,19 +1127,19 @@ function portrait(p){
    ========================================================= */
 
 const state = {
-  board: new Set(),
+  board: new Map(),
   at: 'full',
-  modo: 'random',
+  activeItem: null,
   visita: null,
   visitas: 0,
   skins: { arthur:'casual', leticia:'casual' },
   tab: 'bases',
-  fresh: null,
+  dragging: false,
+  lastPoint: null,
 };
 
 const keyOf = (id, at) => `${id}|${at}`;
-const parse = k => { const [id, at] = k.split('|'); return { id, at }; };
-const halvesOf = id => [...state.board].map(parse).filter(e => e.id === id).map(e => e.at);
+const halvesOf = id => [...state.board.values()].filter(e => e.id === id).map(e => e.at);
 
 function badgeText(ats){
   if (ats.includes('full')) return 'Todo';
@@ -934,26 +1148,52 @@ function badgeText(ats){
 }
 
 /* =========================================================
-   9. RENDERIZAÇÃO
+   9. GEOMETRIA DA PIZZA
    ========================================================= */
 
+const RADIUS = 150;
+const CENTER = 200;
+const MIN_STEP = 16;
+
 const $ = id => document.getElementById(id);
-const $board    = $('board');
-const $pots     = $('pots');
-const $tabs     = $('tabs');
-const $avatar   = $('avatarArea');
-const $skins    = $('skins');
-const $client   = $('client');
-const $say      = $('say');
-const $items    = $('items');
-const $ticket   = $('ticket');
-const $overlay  = $('boxOverlay');
-const $toast    = $('toast');
-const $testbar  = $('testbar');
-const $modo     = $('modo');
+const $board   = $('board');
+const $svg     = $('pizzaSvg');
+const $pots    = $('pots');
+const $tabs    = $('tabs');
+const $avatar  = $('avatarArea');
+const $skins   = $('skins');
+const $client  = $('client');
+const $say     = $('say');
+const $items   = $('items');
+const $ticket  = $('ticket');
+const $overlay = $('boxOverlay');
+const $toast   = $('toast');
+const $modo    = $('modo');
+const $hint    = $('hint');
+
+function toSvgPoint(clientX, clientY){
+  const pt = $svg.createSVGPoint();
+  pt.x = clientX; pt.y = clientY;
+  const ctm = $svg.getScreenCTM();
+  if (!ctm) return null;
+  const p = pt.matrixTransform(ctm.inverse());
+  return { x: p.x, y: p.y };
+}
+
+function insideArea(p, at){
+  const dx = p.x - CENTER, dy = p.y - CENTER;
+  if (dx*dx + dy*dy > RADIUS*RADIUS) return false;
+  if (at === 'left')  return p.x <= CENTER;
+  if (at === 'right') return p.x >= CENTER;
+  return true;
+}
+
+/* =========================================================
+   10. RENDERIZAÇÃO DA PIZZA
+   ========================================================= */
 
 function renderTable(){
-  const entries = [...state.board].map(parse);
+  const entries = [...state.board.values()];
   const bases   = entries.filter(e => ITEMS[e.id].layer === 'base');
   const cheese  = entries.filter(e => ITEMS[e.id].layer === 'queijo');
   const tops    = entries.filter(e => ITEMS[e.id].layer === 'cobertura');
@@ -964,41 +1204,67 @@ function renderTable(){
 
   let baseSvg = '';
   if (baseFull){
-    baseSvg = `<circle cx="200" cy="200" r="150" fill="${ITEMS[baseFull.id].color}"/>`;
+    baseSvg = `<circle id="liq-full" class="spread" cx="200" cy="200" r="150" fill="${ITEMS[baseFull.id].color}"/>`;
   } else {
-    if (baseL) baseSvg += `<path d="M200 50A150 150 0 0 0 200 350Z" fill="${ITEMS[baseL.id].color}"/>`;
-    if (baseR) baseSvg += `<path d="M200 50A150 150 0 0 1 200 350Z" fill="${ITEMS[baseR.id].color}"/>`;
+    if (baseL) baseSvg += `<path id="liq-left" class="spread" d="M200 50A150 150 0 0 0 200 350Z" fill="${ITEMS[baseL.id].color}"/>`;
+    if (baseR) baseSvg += `<path id="liq-right" class="spread" d="M200 50A150 150 0 0 1 200 350Z" fill="${ITEMS[baseR.id].color}"/>`;
   }
   if (baseSvg) baseSvg += `<circle cx="200" cy="200" r="150" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="6"/>`;
 
-  const stack = list => list.map(({ id, at }) => {
-    const k = keyOf(id, at);
-    return placements(id, at).map((p, i) => `
-      <g transform="translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.rot.toFixed(0)}) scale(${p.s.toFixed(2)})">
-        <g class="${k === state.fresh ? 'pop' : ''}" style="animation-delay:${i * 35}ms">${p.sp}</g>
-      </g>`).join('');
-  }).join('');
+  const piecesOf = list => list.map(e => e.pieces.map(p => p.html).join('')).join('');
 
   const divisoria = entries.some(e => e.at !== 'full')
     ? `<line x1="200" y1="36" x2="200" y2="364" stroke="#fff" stroke-opacity=".8" stroke-width="3" stroke-dasharray="7 7" stroke-linecap="round"/>`
     : '';
 
-  $board.innerHTML = `
-    <svg class="pizza" viewBox="0 0 400 400" role="img" aria-label="Pizza em montagem">
-      <defs>
-        <radialGradient id="massa" cx=".4" cy=".35" r=".7">
-          <stop offset="0" stop-color="#FBEBC9"/>
-          <stop offset="1" stop-color="#F0D29B"/>
-        </radialGradient>
-      </defs>
-      <circle cx="200" cy="200" r="190" fill="#E7B878"/>
-      <circle cx="200" cy="200" r="178" fill="none" stroke="#F6DDB0" stroke-width="4" opacity=".8"/>
-      <circle cx="200" cy="200" r="168" fill="url(#massa)"/>
-      ${baseSvg}
-      <g>${stack(cheese)}</g>
-      <g>${stack(tops)}</g>
-      ${divisoria}
-    </svg>`;
+  $svg.innerHTML = `
+    <defs>
+      <radialGradient id="massa" cx=".4" cy=".35" r=".7">
+        <stop offset="0" stop-color="#FBEBC9"/>
+        <stop offset="1" stop-color="#F0D29B"/>
+      </radialGradient>
+    </defs>
+    <circle cx="200" cy="200" r="190" fill="#E7B878"/>
+    <circle cx="200" cy="200" r="178" fill="none" stroke="#F6DDB0" stroke-width="4" opacity=".8"/>
+    <circle cx="200" cy="200" r="168" fill="url(#massa)"/>
+    <g id="layer-base">${baseSvg}</g>
+    <g id="layer-queijo">${piecesOf(cheese)}</g>
+    <g id="layer-cobertura">${piecesOf(tops)}</g>
+    <g id="layer-divisoria">${divisoria}</g>`;
+}
+
+function appendSolidPiece(entry, piece){
+  const layerId = ITEMS[entry.id].layer === 'queijo' ? 'layer-queijo' : 'layer-cobertura';
+  const layer = $svg.querySelector('#' + layerId);
+  const wrap = document.createElementNS(SVGNS, 'g');
+  wrap.setAttribute('transform', `translate(${piece.x.toFixed(1)} ${piece.y.toFixed(1)}) rotate(${piece.rot.toFixed(0)}) scale(${piece.s.toFixed(2)})`);
+  wrap.innerHTML = `<g class="pop">${piece.sp}</g>`;
+  layer.appendChild(wrap);
+}
+
+function paintLiquid(entry){
+  const baseLayer = $svg.querySelector('#layer-base');
+  const id = `liq-${entry.at}`;
+  let el = baseLayer.querySelector('#' + id);
+  if (!el){
+    el = document.createElementNS(SVGNS, entry.at === 'full' ? 'circle' : 'path');
+    el.setAttribute('id', id);
+    el.setAttribute('class', 'spread');
+    baseLayer.appendChild(el);
+  }
+  if (entry.at === 'full'){
+    el.setAttribute('cx', 200); el.setAttribute('cy', 200); el.setAttribute('r', 150);
+  } else {
+    el.setAttribute('d', entry.at === 'left'
+      ? 'M200 50A150 150 0 0 0 200 350Z'
+      : 'M200 50A150 150 0 0 1 200 350Z');
+  }
+  el.setAttribute('fill', ITEMS[entry.id].color);
+}
+
+function removeLiquidFromSvg(at){
+  const el = $svg.querySelector(`#liq-${at}`);
+  if (el) el.remove();
 }
 
 function renderTabs(){
@@ -1013,9 +1279,10 @@ function renderPots(){
     .map(([id, it]) => {
       const ats = halvesOf(id);
       const on = ats.length > 0;
+      const active = state.activeItem === id;
       return `
-        <button class="pot ${on ? 'on' : ''}" data-tab="${it.tab}" data-id="${id}"
-                aria-pressed="${on}" aria-label="${it.name}">
+        <button class="pot ${on ? 'on' : ''} ${active ? 'active' : ''}" data-tab="${it.tab}" data-id="${id}"
+                aria-pressed="${active}" aria-label="${it.name}">
           ${on ? `<b class="badge">${badgeText(ats)}</b>` : ''}
           <svg viewBox="-22 -22 44 44" aria-hidden="true">${potArt(it)}</svg>
           <span>${it.name}</span>
@@ -1028,9 +1295,16 @@ function renderSegmented(){
     b.classList.toggle('on', b.dataset.at === state.at));
 }
 
-function renderTestbar(){
-  $testbar.querySelectorAll('button').forEach(b =>
-    b.classList.toggle('on', b.dataset.modo === state.modo));
+function renderHint(){
+  if (!state.activeItem){
+    $hint.textContent = 'Toque em um pote para escolher o ingrediente.';
+  } else {
+    const isLiquid = ITEMS[state.activeItem].kind === 'liquido';
+    $hint.textContent = isLiquid
+      ? `Toque na massa para pintar com ${ITEMS[state.activeItem].name.toLowerCase()}.`
+      : `Arraste sobre a massa para espalhar ${ITEMS[state.activeItem].name.toLowerCase()}.`;
+  }
+  $board.classList.toggle('no-active', !state.activeItem);
 }
 
 function avatarHTML(v){
@@ -1082,6 +1356,11 @@ function renderSkins(){
   }
 }
 
+function isDone(id, at){
+  if (state.board.has(keyOf(id, 'full'))) return true;
+  return state.board.has(keyOf(id, at));
+}
+
 function renderOrder(){
   const v = state.visita;
   $avatar.innerHTML = avatarHTML(v);
@@ -1089,72 +1368,162 @@ function renderOrder(){
   $say.textContent = v.pedido.say;
   $ticket.textContent = `Pedido nº ${String(state.visitas).padStart(3, '0')}`;
   $items.innerHTML = v.pedido.items.map(({ id, at }) => {
-    const done = state.board.has(keyOf(id, at));
+    const done = isDone(id, at);
     const tag = at === 'full' ? '' : `<em>${at === 'left' ? 'E' : 'D'}</em>`;
     return `<li class="${done ? 'done' : ''}"><i></i>${ITEMS[id].name}${tag}</li>`;
   }).join('');
 }
 
-function render(){
+function renderAll(){
   renderTabs();
   renderPots();
   renderSegmented();
-  renderTestbar();
+  renderHint();
   renderTable();
   renderOrder();
   renderSkins();
 }
 
+function refreshSidebar(){
+  renderPots();
+  renderOrder();
+  renderHint();
+}
+
 /* =========================================================
-   10. AÇÕES
+   11. AÇÕES
    ========================================================= */
 
-function novaVisita(modo){
-  let visita;
-  if (modo === 'random'){
-    const c = pick(RANDOM_CLIENTS);
-    visita = { tipo:'random', nome:c.nome, look:c.look, pedido:pick(c.pedidos) };
-  } else if (modo === 'arthur'){
-    visita = { tipo:'arthur', nome:CLIENTES_VIP.arthur.nome, pedido:pick(CLIENTES_VIP.arthur.pedidos) };
-  } else if (modo === 'leticia'){
-    visita = { tipo:'leticia', nome:CLIENTES_VIP.leticia.nome, pedido:pick(CLIENTES_VIP.leticia.pedidos) };
-  } else {
-    visita = { tipo:'dupla', nome:CLIENTES_VIP.dupla.nome, pedido:pick(CLIENTES_VIP.dupla.pedidos) };
+function pickVisit(){
+  const roll = Math.random();
+  if (roll < 0.10){
+    return { tipo:'arthur', nome:CLIENTES_VIP.arthur.nome, pedido:pick(CLIENTES_VIP.arthur.pedidos) };
   }
-  state.modo = modo;
-  state.visita = visita;
+  if (roll < 0.20){
+    return { tipo:'leticia', nome:CLIENTES_VIP.leticia.nome, pedido:pick(CLIENTES_VIP.leticia.pedidos) };
+  }
+  if (roll < 0.30){
+    return { tipo:'dupla', nome:CLIENTES_VIP.dupla.nome, pedido:pick(CLIENTES_VIP.dupla.pedidos) };
+  }
+  const c = pick(RANDOM_CLIENTS);
+  return { tipo:'random', nome:c.nome, look:c.look, pedido:pick(c.pedidos) };
+}
+
+function novaVisita(){
+  state.visita = pickVisit();
   state.visitas++;
   state.skins = { arthur:'casual', leticia:'casual' };
   state.board.clear();
-  state.fresh = null;
-  render();
+  renderAll();
 }
 
-function toggle(id){
+function selectItem(id){
+  state.activeItem = state.activeItem === id ? null : id;
+  renderPots();
+  renderHint();
+}
+
+/* ---------- Colocar ingredientes: arraste (Pointer Events) ---------- */
+
+function placeSolidAt(p){
+  const id = state.activeItem;
   const at = state.at;
   const k = keyOf(id, at);
 
-  if (state.board.has(k)){
-    state.board.delete(k);
-  } else {
-    if (ITEMS[id].layer === 'base'){
-      for (const e of [...state.board].map(parse)){
-        if (ITEMS[e.id].layer === 'base' &&
-            (e.at === 'full' || at === 'full' || e.at === at)){
-          state.board.delete(keyOf(e.id, e.at));
-        }
-      }
-    }
-    state.board.add(k);
-    state.fresh = k;
+  if (state.lastPoint){
+    const dx = p.x - state.lastPoint.x, dy = p.y - state.lastPoint.y;
+    if (dx*dx + dy*dy < MIN_STEP*MIN_STEP) return;
   }
-  render();
-  state.fresh = null;
+
+  const r = seeded(k + '|' + state.board.size + '|' + Math.round(p.x) + '|' + Math.round(p.y));
+  const it = ITEMS[id];
+  const piece = {
+    x: p.x + (r() - 0.5) * 6,
+    y: p.y + (r() - 0.5) * 6,
+    rot: r() * 360,
+    s: (it.scale ?? 1) * (0.85 + r() * 0.35),
+    sp: sprite(it.sprite, it.color, r),
+  };
+
+  const dx = piece.x - CENTER, dy = piece.y - CENTER;
+  if (dx*dx + dy*dy > RADIUS*RADIUS) return;
+
+  if (!state.board.has(k)){
+    state.board.set(k, { id, at, pieces:[] });
+  }
+  const entry = state.board.get(k);
+  entry.pieces.push(piece);
+  piece.html = `<g transform="translate(${piece.x.toFixed(1)} ${piece.y.toFixed(1)}) rotate(${piece.rot.toFixed(0)}) scale(${piece.s.toFixed(2)})"><g>${piece.sp}</g></g>`;
+  appendSolidPiece(entry, piece);
+
+  state.lastPoint = { x:p.x, y:p.y };
+  refreshSidebar();
 }
+
+function paintLiquidAt(p){
+  const id = state.activeItem;
+  const at = state.at;
+
+  for (const [k, e] of [...state.board.entries()]){
+    if (ITEMS[e.id].layer === 'base' &&
+        (e.at === 'full' || at === 'full' || e.at === at) && k !== keyOf(id, at)){
+      state.board.delete(k);
+      removeLiquidFromSvg(e.at);
+    }
+  }
+
+  const k = keyOf(id, at);
+  if (!state.board.has(k)){
+    state.board.set(k, { id, at, pieces:[], liquidDone:true });
+    paintLiquid(state.board.get(k));
+  }
+  refreshSidebar();
+}
+
+let activePointerId = null;
+
+$board.addEventListener('pointerdown', e => {
+  if (!state.activeItem) return;
+  const p = toSvgPoint(e.clientX, e.clientY);
+  if (!p || !insideArea(p, state.at)) return;
+
+  e.preventDefault();
+  $board.setPointerCapture?.(e.pointerId);
+  activePointerId = e.pointerId;
+  state.dragging = true;
+  state.lastPoint = null;
+
+  if (ITEMS[state.activeItem].kind === 'liquido'){
+    paintLiquidAt(p);
+    state.dragging = false;
+  } else {
+    placeSolidAt(p);
+  }
+});
+
+$board.addEventListener('pointermove', e => {
+  if (!state.dragging || e.pointerId !== activePointerId) return;
+  const p = toSvgPoint(e.clientX, e.clientY);
+  if (!p || !insideArea(p, state.at)) return;
+  placeSolidAt(p);
+});
+
+function endDrag(e){
+  if (e && e.pointerId !== activePointerId) return;
+  state.dragging = false;
+  state.lastPoint = null;
+  activePointerId = null;
+}
+$board.addEventListener('pointerup', endDrag);
+$board.addEventListener('pointercancel', endDrag);
+$board.addEventListener('pointerleave', endDrag);
+
+/* ---------- Entrega e limpeza ---------- */
 
 function clearBoard(){
   state.board.clear();
-  render();
+  renderTable();
+  refreshSidebar();
 }
 
 let toastTimer;
@@ -1171,25 +1540,70 @@ function deliver(){
   $overlay.classList.add('show');
   setTimeout(() => {
     $overlay.classList.remove('show');
-    clearBoard();
+    novaVisita();
     toast(`Pizza entregue para ${name}! ♡`);
   }, 2000);
 }
 
 /* =========================================================
-   11. EVENTOS
+   12. TELA CHEIA E ROTAÇÃO (Android)
+   ========================================================= */
+
+async function enterFullscreenAndLandscape(){
+  try {
+    const el = document.documentElement;
+    if (!document.fullscreenElement && el.requestFullscreen){
+      await el.requestFullscreen().catch(() => {});
+    }
+  } catch (_) { /* navegador não suporta ou bloqueou */ }
+
+  try {
+    if (screen.orientation && screen.orientation.lock){
+      await screen.orientation.lock('landscape').catch(() => {});
+    }
+  } catch (_) { /* travar orientação não permitido */ }
+}
+
+/* =========================================================
+   13. TELA INICIAL
+   ========================================================= */
+
+function buildStartDeco(){
+  const deco = $('startDeco');
+  const symbols = ['♡', '✦', '♡', '✧', '♡'];
+  for (let i = 0; i < 14; i++){
+    const s = document.createElement('span');
+    s.textContent = symbols[i % symbols.length];
+    s.style.left = (Math.random() * 100) + '%';
+    s.style.bottom = (-10 + Math.random() * 20) + '%';
+    s.style.color = i % 2 ? '#F4ACB7' : '#FFF1C1';
+    s.style.animationDelay = (Math.random() * 6) + 's';
+    s.style.animationDuration = (5 + Math.random() * 4) + 's';
+    deco.appendChild(s);
+  }
+}
+
+function startGame(){
+  enterFullscreenAndLandscape();
+  $('start').classList.add('gone');
+  $('app').classList.remove('hidden');
+}
+
+/* =========================================================
+   14. EVENTOS
    ========================================================= */
 
 $pots.addEventListener('click', e => {
   const b = e.target.closest('.pot');
-  if (b) toggle(b.dataset.id);
+  if (b) selectItem(b.dataset.id);
 });
 
 $tabs.addEventListener('click', e => {
   const b = e.target.closest('.tab');
   if (b){
     state.tab = b.dataset.tab;
-    render();
+    renderTabs();
+    renderPots();
   }
 });
 
@@ -1201,11 +1615,6 @@ $modo.addEventListener('click', e => {
   }
 });
 
-$testbar.addEventListener('click', e => {
-  const b = e.target.closest('button');
-  if (b) novaVisita(b.dataset.modo);
-});
-
 $skins.addEventListener('click', e => {
   const b = e.target.closest('.skin-pill');
   if (!b) return;
@@ -1215,14 +1624,18 @@ $skins.addEventListener('click', e => {
   } else {
     state.skins[b.dataset.char] = b.dataset.skin;
   }
-  render();
+  renderOrder();
+  renderSkins();
 });
 
-$('nextClient').addEventListener('click', () => novaVisita(state.modo));
+$('nextClient').addEventListener('click', novaVisita);
 $('clear').addEventListener('click', clearBoard);
 $('deliver').addEventListener('click', deliver);
+$('playBtn').addEventListener('click', startGame);
 
-novaVisita('random');
+/* ---------- Inicialização ---------- */
+buildStartDeco();
+novaVisita();
 </script>
 </body>
 </html>

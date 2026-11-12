@@ -348,7 +348,7 @@
       <button data-modo="random" class="on">Cliente Aleatório</button>
       <button data-modo="arthur">Arthur</button>
       <button data-modo="leticia">Letícia</button>
-      <button data-modo="dupla">Arthur &amp; Letícia</button>
+      <button data-modo="dupla">Arthur & Letícia</button>
     </nav>
   </header>
 
@@ -405,51 +405,86 @@
 
 <script>
 /* =========================================================
-   1. TRAÇOS FÍSICOS DOS VIPs
-   Aqui ficam só as características do corpo e do rosto.
-   Roupa, acessórios e fundo ficam nas SKINS (seção 2).
+   1. TRAÇOS FÍSICOS DOS VIPs (Personalizados)
    ========================================================= */
 
 // ---------- ARTHUR ----------
 const ARTHUR_CFG = {
-  pele:         '#F3CBA8',   // PELE
-  cabelo:       '#5A4032',   // CABELO: cor
-  estiloCabelo: 'espetado',  // CABELO: 'espetado' | 'liso'
-  olhos:        '#4A3B32',   // OLHOS: cor da íris
-  oculos:       true,        // ÓCULOS: true = usa óculos redondos
-  corOculos:    '#7A6559',   // ÓCULOS: cor da armação
+  pele:   '#F3D0B5', // tom de pele
+  cabelo: '#3A2B22', // castanho-escuro com redemoinho e franja desfiada
+  olhos:  '#6B8271', // verde-acinzentado
+  pupila: '#2E3631',
 };
 
 // ---------- LETÍCIA ----------
 const LETICIA_CFG = {
-  pele:         '#F6D3B6',   // PELE
-  cabelo:       '#8C5A3C',   // CABELO: cor
-  ondulado:     true,        // CABELO: true = comprido ondulado, false = liso
-  olhos:        '#5B4336',   // OLHOS: cor da íris
-  cilios:       true,        // OLHOS: desenha cílios
-  laco:         '#F4ACB7',   // ACESSÓRIO padrão: cor do laço (null = sem laço)
-  brinco:       '#FFF1C1',   // ACESSÓRIO padrão: cor dos brincos (null = sem)
+  pele:   '#F1C6A7', // tom de pele
+  cabelo: '#36241B', // castanho-escuro longo ondulado
+  olhos:  '#3B261C', // castanho escuro
+  brinco: '#E5C17B',
 };
 
 /* =========================================================
-   2. CATÁLOGO DE SKINS
-   Cada skin define: nome, cor de fundo do avatar, tipo de
-   roupa, cor da roupa, cor de detalhe (accent), se tem capuz,
-   e a lista de acessórios ('gravata', 'avental', 'touca', 'brilho').
+   2. CATÁLOGO DE SKINS (Casual, Encontro e Neve)
    ========================================================= */
 
 const SKINS = {
   arthur: {
-    casual:   { nome:'Casual',    bg:'#E2ECE9', roupaTipo:'camiseta', roupa:'#A8D5B5', accent:'#7FB58F', acessorios:[] },
-    encontro: { nome:'Encontro',  bg:'#D9CCE8', roupaTipo:'social',   roupa:'#E8E0F4', accent:'#F4ACB7', acessorios:['gravata','brilho'] },
-    cozy:     { nome:'Cozy',      bg:'#FFF1C1', roupaTipo:'moletom',  roupa:'#F3D6C7', accent:'#D9A58A', capuz:true, acessorios:[] },
-    avental:  { nome:'Avental',   bg:'#FDECE2', roupaTipo:'camiseta', roupa:'#FFFFFF', accent:'#F4ACB7', acessorios:['avental','touca'] },
+    casual: {
+      nome: 'Casual',
+      bg: '#E2ECE9',
+      roupaTipo: 'camiseta',
+      roupa: '#3B393D',
+      accent: '#5C585E',
+      acessorios: [],
+    },
+    encontro: {
+      nome: 'Encontro',
+      bg: '#D8E2DC',
+      roupaTipo: 'jaqueta',
+      roupa: '#2F2D30',
+      accent: '#FAF6F0',
+      acessorios: ['brilho'],
+    },
+    neve: {
+      nome: 'Neve',
+      bg: '#DCE8F2',
+      roupaTipo: 'moletomNeve',
+      roupa: '#9CB8D4',
+      accent: '#F5F9FC',
+      capuz: true,
+      acessorios: ['cachecol', 'flocos'],
+    },
   },
   leticia: {
-    casual:   { nome:'Casual',    bg:'#FDECE2', roupaTipo:'camiseta', roupa:'#D9CCE8', accent:'#B9A6D6', acessorios:[] },
-    encontro: { nome:'Encontro',  bg:'#F9D3DC', roupaTipo:'vestido',  roupa:'#F4ACB7', accent:'#FFF1C1', laco:'#FFF1C1', brinco:'#FFF1C1', acessorios:['brilho'] },
-    cozy:     { nome:'Cozy',      bg:'#E2ECE9', roupaTipo:'moletom',  roupa:'#D8E2DC', accent:'#A8C4B5', capuz:true, acessorios:[] },
-    avental:  { nome:'Avental',   bg:'#FFF1C1', roupaTipo:'camiseta', roupa:'#FFFFFF', accent:'#F4ACB7', acessorios:['avental','touca'] },
+    casual: {
+      nome: 'Casual',
+      bg: '#FDECE2',
+      roupaTipo: 'regata',
+      roupa: '#EFE4D2',
+      accent: '#D8C5A8',
+      colar: true,
+      acessorios: [],
+    },
+    encontro: {
+      nome: 'Encontro',
+      bg: '#F9D3DC',
+      roupaTipo: 'regata',
+      roupa: '#3E3A3D',
+      accent: '#F4ACB7',
+      colar: true,
+      acessorios: ['brilho'],
+    },
+    neve: {
+      nome: 'Neve',
+      bg: '#EAE4F2',
+      roupaTipo: 'moletomNeve',
+      roupa: '#F2C6D4',
+      accent: '#FFF9FB',
+      capuz: true,
+      colar: false,
+      acessorios: ['cachecol', 'flocos'],
+    },
   },
 };
 
@@ -457,174 +492,208 @@ const SKINS = {
    3. CAMADAS COMPARTILHADAS (roupa, capuz, acessórios)
    ========================================================= */
 
-// Corpo: camiseta, social (camisa com gola), moletom ou vestido
-function roupaSVG(tipo, cor, accent){
-  if (tipo === 'vestido') return `
-    <path d="M30 86Q60 78 90 86L104 120H16Z" fill="${cor}"/>
-    <path d="M40 92Q60 98 80 92" fill="none" stroke="#fff" stroke-width="2" opacity=".6"/>`;
-  if (tipo === 'social') return `
-    <path d="M16 120Q18 88 60 86Q102 88 104 120Z" fill="${cor}"/>
-    <path d="M48 86L60 102L72 86" fill="#fff" stroke="${accent}" stroke-width="1.2"/>`;
-  if (tipo === 'moletom') return `
-    <path d="M14 120Q16 86 60 84Q104 86 106 120Z" fill="${cor}"/>
-    <path d="M50 84Q60 92 70 84" fill="none" stroke="${accent}" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M60 92V112" stroke="${accent}" stroke-width="1.6" stroke-dasharray="3 3"/>
-    <path d="M16 112H104" stroke="${accent}" stroke-width="2" opacity=".6"/>`;
+function roupaSVG(tipo, cor, accent, pele){
+  if (tipo === 'regata') return `
+    <path d="M22 120 Q25 88 60 86 Q95 88 98 120 Z" fill="${pele}"/>
+    <path d="M37 90 L42 87 L45 98 Q60 105 75 98 L78 87 L83 90 L94 120 L26 120 Z" fill="${cor}"/>`;
+
+  if (tipo === 'jaqueta') return `
+    <path d="M16 120 Q18 88 60 86 Q102 88 104 120 Z" fill="${cor}"/>
+    <path d="M47 87 L60 120 L73 87 Q60 91 47 87 Z" fill="${accent}"/>
+    <path d="M46 86 L51 120 M74 86 L69 120" stroke="#524F54" stroke-width="2" fill="none"/>`;
+
+  if (tipo === 'moletomNeve') return `
+    <path d="M8 120 Q10 82 60 80 Q110 82 112 120 Z" fill="${cor}"/>
+    <path d="M14 102 Q60 108 106 102" fill="none" stroke="${accent}" stroke-width="2.5" opacity=".55"/>
+    <path d="M42 82 Q60 94 78 82" fill="none" stroke="${accent}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M53 90 V106 M67 90 V106" stroke="${accent}" stroke-width="2.2" stroke-linecap="round"/>
+    <circle cx="53" cy="107" r="2" fill="${accent}"/>
+    <circle cx="67" cy="107" r="2" fill="${accent}"/>`;
+
   // camiseta (padrão)
   return `
-    <path d="M16 120Q18 88 60 86Q102 88 104 120Z" fill="${cor}"/>
-    <path d="M50 88L60 98L70 88" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>`;
+    <path d="M16 120 Q18 88 60 86 Q102 88 104 120 Z" fill="${cor}"/>
+    <path d="M48 87 Q60 96 72 87" fill="none" stroke="${accent}" stroke-width="2.4" stroke-linecap="round" opacity=".75"/>`;
 }
 
-// Capuz atrás da cabeça (moletom)
-const capuzSVG = (cor, accent) =>
-  `<path d="M28 84Q24 34 60 28Q96 34 92 84Q80 70 60 70Q40 70 28 84Z" fill="${cor}" stroke="${accent}" stroke-width="1.2"/>`;
+// Capuz fofo atrás da cabeça para a skin de neve
+const capuzSVG = (cor, accent) => `
+  <path d="M23 86 Q18 30 60 22 Q102 30 97 86 Q82 72 60 72 Q38 72 23 86 Z" fill="${cor}"/>
+  <path d="M25 84 Q21 33 60 25 Q99 33 95 84" fill="none" stroke="${accent}" stroke-width="4.5" stroke-linecap="round"/>`;
 
-// Estrelinha pastel
 const STAR = (x, y, s, fill) =>
   `<path transform="translate(${x} ${y}) scale(${s})" d="M0-4L1-1L4 0L1 1L0 4L-1 1L-4 0L-1-1Z" fill="${fill}"/>`;
 
-// Acessórios desenhados por cima do avatar
+const FLAKE = (x, y, s) => `
+  <g transform="translate(${x} ${y}) scale(${s})" stroke="#FFFFFF" stroke-width="1.4" stroke-linecap="round">
+    <path d="M0-5V5 M-4.3-2.5L4.3 2.5 M-4.3 2.5L4.3-2.5"/>
+  </g>`;
+
 function acessoriosSVG(lista, accent){
   const pecas = {
-    gravata: `
-      <path d="M56 88L64 88L66 98L60 116L54 98Z" fill="${accent}" stroke="#fff" stroke-width=".8"/>
-      <rect x="55.5" y="86" width="9" height="5" rx="2" fill="${accent}"/>`,
-    avental: `
-      <path d="M42 92Q60 88 78 92L80 118H40L42 92Z" fill="#fff" stroke="${accent}" stroke-width="1.5"/>
-      <path d="M44 96L52 100M76 96L68 100" stroke="${accent}" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="60" cy="104" r="2" fill="${accent}"/>`,
-    touca: `
-      <path d="M36 40Q34 16 50 14Q56 6 66 12Q84 12 84 40Z" fill="#fff" stroke="#E6D3B8" stroke-width="1.2"/>
-      <rect x="36" y="34" width="48" height="8" rx="3" fill="${accent}"/>`,
-    brilho: STAR(22,70,1,'#FFF1C1') + STAR(98,66,.8,'#FFF1C1') +
-            STAR(30,104,.9,'#FFFFFF') + STAR(92,102,1,'#FFF1C1'),
+    cachecol: `
+      <path d="M64 88 L74 88 L78 116 L66 116 Z" fill="${accent}" stroke="#D6C6B8" stroke-width=".8"/>
+      <path d="M66 116 V120 M70 116 V120 M74 116 V120 M77 116 V120" stroke="${accent}" stroke-width="1.6" stroke-linecap="round"/>
+      <path d="M38 80 Q60 88 82 80 Q85 88 80 93 Q60 99 40 93 Q35 88 38 80 Z" fill="${accent}" stroke="#D6C6B8" stroke-width=".8"/>`,
+    flocos: FLAKE(20, 32, 1) + FLAKE(98, 28, .9) + FLAKE(16, 68, .85) + FLAKE(103, 64, 1.05),
+    brilho: STAR(20, 36, 1.1, '#FFF1C1') + STAR(99, 34, .9, '#FFF1C1') +
+            STAR(24, 96, .95, '#FFFFFF') + STAR(96, 94, 1.05, '#FFF1C1'),
   };
   return lista.map(a => pecas[a] || '').join('');
 }
 
 /* =========================================================
-   4. DESENHO DO ARTHUR (camadas comentadas)
-   Para ajustar traços: mexa na camada certa abaixo.
+   4. DESENHO DO ARTHUR (Cabelo leve com redemoinho e franja desfiada)
    ========================================================= */
 function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual){
   const accent = skin.accent || '#F4ACB7';
 
-  // ---- CAMADA 1: ROUPA (corpo / camisa / moletom) ----
-  const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent);
+  // ---- CAMADA 1: ROUPA ----
+  const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent, c.pele);
 
-  // ---- CAMADA 2: CAPUZ (atrás da cabeça, só nas skins com capuz) ----
+  // ---- CAMADA 2: CAPUZ (neve) ----
   const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
 
-  // ---- CAMADA 3: CABELO DE TRÁS ----
-  const cabeloTras = `<path d="M34 54Q32 24 60 24Q88 24 86 54L86 62Q60 50 34 62Z" fill="${c.cabelo}"/>`;
+  // ---- CAMADA 3: CABELO DE TRÁS (volume arredondado com mechas soltas no topo e laterais) ----
+  const cabeloTras = `
+    <path d="M34 62
+             L33 52
+             Q29 48 32 43
+             Q29 37 34 31
+             Q34 26 40 24
+             Q47 18 55 20
+             Q62 14 71 17
+             Q66 18 63 20
+             Q70 16 77 20
+             Q73 20 69 21
+             Q78 21 83 26
+             Q87 28 86 32
+             Q91 38 88 44
+             Q91 48 87 52
+             L86 62 Z" fill="${c.cabelo}"/>`;
 
-  // ---- CAMADA 4: PESCOÇO ----
-  const pescoco = `<rect x="52" y="76" width="16" height="16" rx="6" fill="${c.pele}"/>`;
+  // ---- CAMADA 4: PESCOÇO E ORELHAS ----
+  const pescoco = `
+    <rect x="52" y="75" width="16" height="16" rx="6" fill="${c.pele}"/>
+    <ellipse cx="35" cy="58" rx="3.2" ry="5" fill="${c.pele}"/>
+    <ellipse cx="85" cy="58" rx="3.2" ry="5" fill="${c.pele}"/>`;
 
   // ---- CAMADA 5: ROSTO ----
-  const rosto = `<ellipse cx="60" cy="56" rx="25" ry="27" fill="${c.pele}"/>`;
+  const rosto = `<ellipse cx="60" cy="56" rx="24.5" ry="26.5" fill="${c.pele}"/>`;
 
-  // ---- CAMADA 6: CABELO DA FRENTE ----
-  const cabeloFrente = c.estiloCabelo === 'espetado'
-    ? `<path d="M36 46L42 30L50 40L56 26L62 38L70 27L74 40L84 34L82 48Q60 40 36 46Z" fill="${c.cabelo}"/>`
-    : `<path d="M35 50Q36 30 60 30Q84 30 85 50Q70 40 60 42Q48 42 35 50Z" fill="${c.cabelo}"/>`;
+  // ---- CAMADA 6: CABELO DA FRENTE (franja fina e desfiada irradiando do redemoinho) ----
+  const cabeloFrente = `
+    <path d="M35.5 44 L35 58 L38.5 48 Z" fill="${c.cabelo}"/>
+    <path d="M84.5 44 L85 58 L81.5 48 Z" fill="${c.cabelo}"/>
+    <path d="M55 20.5
+             Q42 20 35 30
+             Q30 39 34 49
+             L36.5 45 L38.5 50
+             L41.5 45 L44.5 51
+             L47.5 45.5 L51 51.5
+             L54 46 L58.5 52
+             L61 46.5 L65 51.5
+             L68 46 L72.5 51
+             L75 45.5 L79 50
+             L81 45 L84.5 49
+             Q89 39 85 30
+             Q78 20 55 20.5 Z" fill="${c.cabelo}"/>
+    <path d="M56 21.5 Q71 25.5 83 38.5 Q75 39.5 66 33.5 Q60 28.5 56 21.5 Z" fill="${c.cabelo}"/>
+    <path d="M55 21 Q47 30 45 47
+             M55 21 Q52 32 52 48
+             M55 21 Q58 33 63 48
+             M55 21 Q65 30 72 47
+             M52 22 Q40 28 37 44
+             M58 22 Q73 27 81 43"
+          stroke="#231812" stroke-width="1" stroke-linecap="round" fill="none" opacity=".45"/>`;
 
-  // ---- CAMADA 7: OLHOS (com brilho) ----
+  // ---- CAMADA 7: SOBRANCELHAS RETAS E OLHOS CLAROS ----
   const olhos = `
-    <ellipse cx="51" cy="57" rx="2.6" ry="3.2" fill="${c.olhos}"/>
-    <ellipse cx="69" cy="57" rx="2.6" ry="3.2" fill="${c.olhos}"/>
-    <circle cx="51.9" cy="55.8" r=".9" fill="#fff"/>
-    <circle cx="69.9" cy="55.8" r=".9" fill="#fff"/>`;
+    <path d="M44 51 L55.5 51.5" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
+    <path d="M64.5 51.5 L76 51" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="50.5" cy="57" r="3" fill="${c.olhos}"/>
+    <circle cx="69.5" cy="57" r="3" fill="${c.olhos}"/>
+    <circle cx="50.5" cy="57" r="1.4" fill="${c.pupila}"/>
+    <circle cx="69.5" cy="57" r="1.4" fill="${c.pupila}"/>
+    <circle cx="51.4" cy="55.9" r=".9" fill="#fff"/>
+    <circle cx="70.4" cy="55.9" r=".9" fill="#fff"/>`;
 
-  // ---- CAMADA 8: ÓCULOS ----
-  const oculos = c.oculos ? `
-    <g fill="none" stroke="${c.corOculos}" stroke-width="1.6">
-      <circle cx="51" cy="57" r="6.5"/>
-      <circle cx="69" cy="57" r="6.5"/>
-      <path d="M57.5 57H62.5"/>
-    </g>` : '';
-
-  // ---- CAMADA 9: BOCHECHAS E SORRISO ----
+  // ---- CAMADA 8: BOCHECHAS E SORRISO ----
   const detalhes = `
-    <ellipse cx="43" cy="66" rx="5" ry="3" fill="#F4ACB7" opacity=".7"/>
-    <ellipse cx="77" cy="66" rx="5" ry="3" fill="#F4ACB7" opacity=".7"/>
-    <path d="M53 68Q60 74 67 68" stroke="${c.olhos}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+    <ellipse cx="43" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
+    <ellipse cx="77" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
+    <path d="M53 68 Q60 72.5 67 67.5" stroke="#5A4338" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
 
-  // ---- CAMADA 10: ACESSÓRIOS DA SKIN (gravata, avental, touca, brilho) ----
+  // ---- CAMADA 9: ACESSÓRIOS DA SKIN ----
   const acessorios = acessoriosSVG(skin.acessorios || [], accent);
 
   return `<svg viewBox="0 0 120 120" aria-hidden="true">
     ${roupa}${capuz}${cabeloTras}${pescoco}${rosto}${cabeloFrente}
-    ${olhos}${oculos}${detalhes}${acessorios}
+    ${olhos}${detalhes}${acessorios}
   </svg>`;
 }
 
 /* =========================================================
-   5. DESENHO DA LETÍCIA (camadas comentadas)
-   Para ajustar traços: mexa na camada certa abaixo.
+   5. DESENHO DA LETÍCIA (Cabelo atrás da roupa)
    ========================================================= */
 function drawLeticia(c = LETICIA_CFG, skin = SKINS.leticia.casual){
   const accent = skin.accent || '#F4ACB7';
-  // Acessórios que podem ser trocados pela skin (ou usar o padrão do físico)
-  const laco   = skin.laco   ?? c.laco;
+
+    // Brincos: a skin pode trocar a cor; se não trocar, usa a do físico
   const brinco = skin.brinco ?? c.brinco;
-
-  // ---- CAMADA 1: ROUPA (blusa / vestido / moletom) ----
-  const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent);
-
-  // ---- CAMADA 2: CAPUZ (atrás da cabeça, só nas skins com capuz) ----
-  const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
-
-  // ---- CAMADA 3: CABELO DE TRÁS (ondulado comprido ou liso) ----
-  const cabeloTras = `<path d="${c.ondulado
-      ? 'M31 62Q26 98 38 106Q48 100 60 106Q72 100 82 106Q94 98 89 62Q88 22 60 22Q32 22 31 62Z'
-      : 'M32 60Q30 40 60 22Q90 40 88 60L88 96L32 96Z'}" fill="${c.cabelo}"/>`;
-
-  // ---- CAMADA 4: PESCOÇO ----
-  const pescoco = `<rect x="52" y="76" width="16" height="16" rx="6" fill="${c.pele}"/>`;
-
-  // ---- CAMADA 5: ROSTO ----
-  const rosto = `<ellipse cx="60" cy="56" rx="25" ry="27" fill="${c.pele}"/>`;
-
-  // ---- CAMADA 6: FRANJA LATERAL ----
-  const franja = `<path d="M34 56Q34 30 60 28Q86 30 86 56Q80 42 68 40Q52 46 34 56Z" fill="${c.cabelo}"/>`;
-
-  // ---- CAMADA 7: LAÇO (acessório de cabelo) ----
-  const laçoSVG = laco ? `
-    <g fill="${laco}" stroke="#fff" stroke-width=".8">
-      <path d="M84 34L94 27L94 41Z"/>
-      <path d="M84 34L74 27L74 41Z"/>
-      <circle cx="84" cy="34" r="3"/>
+  const brincos = brinco ? `
+    <g fill="${brinco}" stroke="#C9A35E" stroke-width=".6">
+      <circle cx="36" cy="68" r="2.4"/>
+      <circle cx="84" cy="68" r="2.4"/>
     </g>` : '';
 
-  // ---- CAMADA 8: OLHOS (com brilho e cílios opcionais) ----
+  // ---- CAMADA 1: CAPUZ (neve) ----
+  const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
+
+  // ---- CAMADA 2: CABELO DE TRÁS (atrás dos ombros e da roupa) ----
+  const cabeloTras = `
+    <path d="M30 58 Q24 88 30 116 Q44 112 60 116 Q76 112 90 116 Q96 88 90 58 Q88 22 60 22 Q32 22 30 58 Z" fill="${c.cabelo}"/>
+    <path d="M29 74 Q23 86 28 98 M91 74 Q97 86 92 98" stroke="${c.cabelo}" stroke-width="5" stroke-linecap="round" fill="none"/>`;
+
+  // ---- CAMADA 3: ROUPA (desenhada por cima do cabelo de trás) ----
+  const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent, c.pele);
+
+  // ---- CAMADA 4: PESCOÇO E COLAR DELICADO ----
+  const pescoco = `<rect x="52" y="75" width="16" height="16" rx="6" fill="${c.pele}"/>`;
+  const colar = skin.colar ? `
+    <path d="M48 85 Q60 95 72 85" fill="none" stroke="#E5C17B" stroke-width="1.2"/>
+    <circle cx="60" cy="90.5" r="1.5" fill="#E5C17B"/>` : '';
+
+  // ---- CAMADA 5: ROSTO ----
+  const rosto = `<ellipse cx="60" cy="56" rx="23.5" ry="25.5" fill="${c.pele}"/>`;
+
+  // ---- CAMADA 6: CABELO DA FRENTE (repartido ao meio, emoldurando o rosto) ----
+  const cabeloFrente = `
+    <path d="M60 27 Q43 29 35 48 Q32 65 36 84 Q39 63 43 48 Q48 36 60 32 Z" fill="${c.cabelo}"/>
+    <path d="M60 27 Q77 29 85 48 Q88 65 84 84 Q81 63 77 48 Q72 36 60 32 Z" fill="${c.cabelo}"/>`;
+
+  // ---- CAMADA 7: SOBRANCELHAS MARCANTES E OLHOS ----
   const olhos = `
-    <ellipse cx="51" cy="57" rx="2.4" ry="3" fill="${c.olhos}"/>
-    <ellipse cx="69" cy="57" rx="2.4" ry="3" fill="${c.olhos}"/>
-    <circle cx="51.8" cy="55.9" r=".9" fill="#fff"/>
-    <circle cx="69.8" cy="55.9" r=".9" fill="#fff"/>
-    ${c.cilios ? `
-    <path d="M47.6 53.6Q51 51.4 54.4 53.6" stroke="${c.olhos}" stroke-width="1" fill="none" stroke-linecap="round"/>
-    <path d="M65.6 53.6Q69 51.4 72.4 53.6" stroke="${c.olhos}" stroke-width="1" fill="none" stroke-linecap="round"/>` : ''}`;
+    <path d="M44 50 Q50 47 56 49.5" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+    <path d="M64 49.5 Q70 47 76 50" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+    <ellipse cx="50.5" cy="56" rx="2.5" ry="3" fill="${c.olhos}"/>
+    <ellipse cx="69.5" cy="56" rx="2.5" ry="3" fill="${c.olhos}"/>
+    <circle cx="51.3" cy="54.9" r=".9" fill="#fff"/>
+    <circle cx="70.3" cy="54.9" r=".9" fill="#fff"/>`;
 
-  // ---- CAMADA 9: BRINCOS ----
-  const brincosSVG = brinco ? `
-    <circle cx="34" cy="72" r="2.6" fill="${brinco}" stroke="#E6D29B" stroke-width=".6"/>
-    <circle cx="86" cy="72" r="2.6" fill="${brinco}" stroke="#E6D29B" stroke-width=".6"/>` : '';
-
-  // ---- CAMADA 10: BOCHECHAS E SORRISO ----
+  // ---- CAMADA 8: BOCHECHAS E SORRISO ABERTO ----
   const detalhes = `
-    <ellipse cx="43" cy="66" rx="5" ry="3" fill="#F4ACB7" opacity=".75"/>
-    <ellipse cx="77" cy="66" rx="5" ry="3" fill="#F4ACB7" opacity=".75"/>
-    <path d="M54 67Q60 72 66 67" stroke="${c.olhos}" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+    <ellipse cx="43" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
+    <ellipse cx="77" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
+    <path d="M51 66 Q60 75 69 66 Z" fill="#FFFFFF" stroke="#C96F78" stroke-width="1.6" stroke-linejoin="round"/>`;
 
-  // ---- CAMADA 11: ACESSÓRIOS DA SKIN (avental, touca, brilho...) ----
+  // ---- CAMADA 9: ACESSÓRIOS DA SKIN ----
   const acessorios = acessoriosSVG(skin.acessorios || [], accent);
 
-  return `<svg viewBox="0 0 120 120" aria-hidden="true">
-    ${roupa}${capuz}${cabeloTras}${pescoco}${rosto}${franja}
-    ${laçoSVG}${olhos}${brincosSVG}${detalhes}${acessorios}
+    return `<svg viewBox="0 0 120 120" aria-hidden="true">
+    ${capuz}${cabeloTras}${roupa}${pescoco}${colar}${rosto}${cabeloFrente}
+    ${brincos}
+    ${olhos}${detalhes}${acessorios}
   </svg>`;
 }
 
@@ -647,7 +716,6 @@ const TABS = [
   { id:'doces',     label:'Doces' },
 ];
 
-// layer: 'base' (cobre a massa) | 'queijo' | 'cobertura'
 const ITEMS = {
   molho:        { name:'Molho de tomate',    tab:'bases',     layer:'base',      color:'#F2A596', sprite:'sauce' },
   creme:        { name:'Creme branco',       tab:'bases',     layer:'base',      color:'#FFF9EF', sprite:'sauce' },
@@ -671,10 +739,8 @@ const ITEMS = {
   morango:      { name:'Morango',            tab:'doces',     layer:'cobertura', color:'#F28B94', sprite:'berry',   count:8 },
 };
 
-// Atalho: lista de itens na pizza inteira
 const F = (...ids) => ids.map(id => ({ id, at:'full' }));
 
-// Clientes aleatórios (sem skins, aparência fixa)
 const RANDOM_CLIENTS = [
   { nome:'Dona Lúcia', look:{ skin:'#F1C7A5', hair:'#8A6A5A', style:'bun',   shirt:'#D8E2DC', bg:'#E2ECE9' },
     pedidos:[{ say:'Quero uma clássica bem gostosinha, com manjericão fresquinho!', items:F('molho','mussarela','manjericao','tomatecereja') }] },
@@ -686,7 +752,6 @@ const RANDOM_CLIENTS = [
     pedidos:[{ say:'Quero bombom de uva! Creme branco, chocolate e bem doce!', items:F('creme','uva','ganache') }] },
 ];
 
-// Clientes VIP
 const CLIENTES_VIP = {
   arthur: {
     nome:'Arthur',
@@ -730,7 +795,6 @@ const CLIENTES_VIP = {
 
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
-// Gerador pseudoaleatório com semente (mesma semente = mesmo arranjo)
 function seeded(str){
   let s = 0;
   for (const c of str) s = (Math.imul(s, 31) + c.charCodeAt(0)) | 0;
@@ -742,7 +806,6 @@ function seeded(str){
   };
 }
 
-// Desenho de cada ingrediente, centralizado em (0,0)
 function sprite(type, color, r){
   switch(type){
     case 'blob':
@@ -783,7 +846,6 @@ function sprite(type, color, r){
   }
 }
 
-// Posições de um ingrediente numa área: 'full' (pizza toda), 'left' ou 'right'
 function placements(id, at){
   const it = ITEMS[id];
   const r = seeded(id + '|' + at);
@@ -792,8 +854,8 @@ function placements(id, at){
   const out = [];
   for (let i = 0; i < n; i++){
     let ang;
-    if (at === 'left')       ang = Math.PI/2 + r() * Math.PI;   // lado esquerdo (x < 200)
-    else if (at === 'right') ang = -Math.PI/2 + r() * Math.PI;  // lado direito (x > 200)
+    if (at === 'left')       ang = Math.PI/2 + r() * Math.PI;
+    else if (at === 'right') ang = -Math.PI/2 + r() * Math.PI;
     else                     ang = r() * Math.PI * 2;
     const dist = Math.sqrt(r()) * 128;
     out.push({
@@ -807,7 +869,6 @@ function placements(id, at){
   return out;
 }
 
-// Ícone de cada pote
 function potArt(it){
   const body = it.layer === 'base'
     ? `<circle r="8" fill="${it.color}" stroke="#D8C3A8" stroke-width="1"/>`
@@ -818,7 +879,6 @@ function potArt(it){
     <g transform="translate(0 -3) scale(1.25)">${body}</g>`;
 }
 
-// Retrato dos clientes aleatórios (SVG fofo)
 function portrait(p){
   const hair = {
     bob:   `<path d="M32 62Q30 24 60 22Q90 24 88 62L90 92Q80 84 76 72L44 72Q40 84 30 92Z" fill="${p.hair}"/>`,
@@ -850,18 +910,17 @@ function portrait(p){
 
 /* =========================================================
    8. ESTADO
-   Ingredientes na pizza são chaves "id|área" (área = full | left | right).
    ========================================================= */
 
 const state = {
-  board: new Set(),                          // chaves "id|área"
-  at: 'full',                                // área selecionada
-  modo: 'random',                            // tipo de cliente na barra de teste
-  visita: null,                              // cliente e pedido atuais
-  visitas: 0,                                // contador da comanda
-  skins: { arthur:'casual', leticia:'casual' }, // skin atual de cada VIP
-  tab: 'bases',                              // aba da despensa
-  fresh: null,                               // última chave adicionada (animação)
+  board: new Set(),
+  at: 'full',
+  modo: 'random',
+  visita: null,
+  visitas: 0,
+  skins: { arthur:'casual', leticia:'casual' },
+  tab: 'bases',
+  fresh: null,
 };
 
 const keyOf = (id, at) => `${id}|${at}`;
@@ -893,7 +952,6 @@ const $toast    = $('toast');
 const $testbar  = $('testbar');
 const $modo     = $('modo');
 
-// Pizza em camadas: massa → base (inteira ou metades) → queijos → coberturas → divisória
 function renderTable(){
   const entries = [...state.board].map(parse);
   const bases   = entries.filter(e => ITEMS[e.id].layer === 'base');
@@ -975,7 +1033,6 @@ function renderTestbar(){
     b.classList.toggle('on', b.dataset.modo === state.modo));
 }
 
-// Avatar(es) do cliente atual, já com a skin escolhida
 function avatarHTML(v){
   const sA = SKINS.arthur[state.skins.arthur];
   const sL = SKINS.leticia[state.skins.leticia];
@@ -989,7 +1046,6 @@ function avatarHTML(v){
   if (v.tipo === 'leticia'){
     return `<div class="avatar" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL)}</div>`;
   }
-  // dupla
   return `
     <div class="duo">
       <div class="avatar" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA)}</div>
@@ -998,7 +1054,6 @@ function avatarHTML(v){
     </div>`;
 }
 
-// Seletor de skins (só aparece com Arthur, Letícia ou a dupla)
 function renderSkins(){
   const v = state.visita;
   if (v.tipo === 'random'){ $skins.innerHTML = ''; return; }
@@ -1054,7 +1109,6 @@ function render(){
    10. AÇÕES
    ========================================================= */
 
-// Cria uma nova visita conforme o tipo de cliente (skins voltam ao casual)
 function novaVisita(modo){
   let visita;
   if (modo === 'random'){
@@ -1076,7 +1130,6 @@ function novaVisita(modo){
   render();
 }
 
-// Liga ou desliga um ingrediente na área selecionada
 function toggle(id){
   const at = state.at;
   const k = keyOf(id, at);
@@ -1084,7 +1137,6 @@ function toggle(id){
   if (state.board.has(k)){
     state.board.delete(k);
   } else {
-    // Bases cobrem a massa: removem as bases que se sobrepõem à área
     if (ITEMS[id].layer === 'base'){
       for (const e of [...state.board].map(parse)){
         if (ITEMS[e.id].layer === 'base' &&
@@ -1154,7 +1206,6 @@ $testbar.addEventListener('click', e => {
   if (b) novaVisita(b.dataset.modo);
 });
 
-// Troca de skin: "both" aplica o mesmo tema aos dois
 $skins.addEventListener('click', e => {
   const b = e.target.closest('.skin-pill');
   if (!b) return;

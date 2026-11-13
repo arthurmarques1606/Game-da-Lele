@@ -23,6 +23,7 @@
     --cafe-suave:#7A6559;
     --sombra:0 14px 30px -16px rgba(74,59,50,.35);
     --elastico:cubic-bezier(.34,1.56,.64,1);
+    --suave:cubic-bezier(.22,1,.36,1);
     --coral:#F5B5A8;
     --verde:#A8D5B5;
   }
@@ -41,19 +42,27 @@
     user-select:none;-webkit-user-select:none;
   }
 
-  button,.brand,.client,.tab,.pot span,.badge,.start-title,.start-btn,.toast,.rotate-title,.feedback-title{font-family:'Fredoka',sans-serif}
+  button,.brand,.client,.tab,.pot span,.badge,.start-title,.start-btn,.toast,.rotate-title,.feedback-title,.vip-title,.vip-btn{font-family:'Fredoka',sans-serif}
 
   /* ---------- Layout do jogo ---------- */
   .app{
     height:100vh;height:100dvh;
     display:grid;
-    grid-template-columns:300px 1fr 330px;
+    grid-template-columns:340px 1fr 330px;
     grid-template-rows:auto 1fr;
     gap:16px;
     padding:16px 20px;
-    transition:opacity .6s ease, transform .6s var(--elastico);
+    overflow:hidden;
+    transition:
+      opacity .6s ease,
+      transform .6s var(--elastico),
+      grid-template-columns .55s var(--suave);
   }
   .app.hidden{opacity:0;transform:scale(.98);pointer-events:none}
+
+  .app.in-oven{
+    grid-template-columns:340px 1fr 0px;
+  }
 
   .top{
     grid-column:1/-1;
@@ -116,21 +125,22 @@
   }
 
   .avatar{
-    width:118px;height:118px;margin:6px auto 0;border-radius:50%;
-    border:4px solid #fff;overflow:hidden;position:relative;
-    box-shadow:0 8px 16px -10px rgba(74,59,50,.45);
+    width:170px;height:170px;margin:6px auto 0;border-radius:50%;
+    border:5px solid #fff;overflow:hidden;position:relative;
+    box-shadow:0 10px 20px -10px rgba(74,59,50,.45);
     transition:background .4s;
+    display:flex;align-items:center;justify-content:center;
   }
-  .avatar svg{width:100%;height:100%;display:block}
+  .avatar > svg{width:100%;height:100%;display:block}
   .avatar .mood{
     position:absolute;right:-6px;top:6px;
-    width:26px;height:26px;pointer-events:none;
+    width:30px;height:30px;pointer-events:none;
     animation:popIn .4s var(--elastico) both;
   }
   @keyframes popIn{from{transform:scale(0)}to{transform:scale(1)}}
 
   .duo{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px}
-  .duo .avatar{width:96px;height:96px;margin:0}
+  .duo .avatar{width:140px;height:140px;margin:0;border-width:4px}
   .sparkles{display:flex;flex-direction:column;align-items:center;gap:4px}
   .sparkles svg{width:18px;height:18px;animation:twinkle 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
   .sparkles svg:nth-child(2){animation-delay:.6s;width:12px;height:12px}
@@ -143,6 +153,26 @@
   @keyframes beat{
     0%,100%{transform:scale(1)}
     50%{transform:scale(1.15)}
+  }
+
+  .face-fx{
+    position:absolute;inset:0;pointer-events:none;overflow:visible;
+    animation:fxFade 2.4s ease forwards;
+  }
+  @keyframes fxFade{
+    0%{opacity:0}
+    10%{opacity:1}
+    85%{opacity:1}
+    100%{opacity:0}
+  }
+  .face-fx .float{
+    transform-box:fill-box;transform-origin:center;
+    animation:floatUp 2s ease-out forwards;
+  }
+  @keyframes floatUp{
+    0%{transform:translateY(8px) scale(.4);opacity:0}
+    30%{opacity:1}
+    100%{transform:translateY(-22px) scale(1);opacity:0}
   }
 
   .skins{margin-top:10px}
@@ -178,6 +208,18 @@
   .bubble.sad{background:#FFF4F1}
   .bubble.sad::before{border-bottom-color:#FFF4F1}
 
+  .comanda-feedback{
+    display:none;margin-top:12px;padding:10px 12px;border-radius:14px;
+    background:#fff;text-align:center;
+    box-shadow:0 6px 14px -10px rgba(74,59,50,.4);
+    animation:popIn .4s var(--elastico) both;
+  }
+  .comanda-feedback.show{display:block}
+  .comanda-feedback .fb-title{font-size:1.25rem;font-weight:700;line-height:1.1}
+  .comanda-feedback.ok .fb-title{color:#5C8069}
+  .comanda-feedback.bad .fb-title{color:#B35C4E}
+  .comanda-feedback .fb-sub{font-size:.85rem;font-weight:600;color:var(--cafe-suave);margin-top:4px;line-height:1.3}
+
   .items{list-style:none;margin-top:12px}
   .items li{
     display:flex;align-items:center;gap:10px;
@@ -211,7 +253,7 @@
   /* ---------- Bancada: etapas ---------- */
   .bench{
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
-    min-height:0;position:relative;
+    min-height:0;min-width:0;position:relative;
   }
   .stage{
     position:absolute;inset:0;
@@ -291,33 +333,33 @@
 
   /* ---------- Etapa do forno: bandeja | forno | caixa ---------- */
   .oven-stage{
-    width:100%;max-width:860px;height:100%;
+    width:100%;max-width:1080px;height:100%;
     display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:10px;
-    padding:6px 0 4px;
+    padding:6px 8px 4px;
   }
-  .oven-top{display:flex;justify-content:flex-start;width:100%}
+  .oven-top{display:flex;justify-content:flex-start;width:100%;position:relative;z-index:5}
 
   .oven-row{
     position:relative;width:100%;flex:1;min-height:0;
-    display:grid;grid-template-columns:1fr 1.65fr 1.1fr;align-items:center;gap:12px;
+    display:grid;grid-template-columns:1fr 1.6fr 1.15fr;align-items:center;gap:16px;
+    padding-top:18px;
   }
 
-  /* Bandeja */
   .tray{
     position:relative;justify-self:center;
-    width:min(100%,215px);aspect-ratio:1;
+    width:min(100%, 265px);aspect-ratio:1;
     border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #F7E9D8 0%, var(--madeira) 55%, var(--madeira-escura) 100%);
     box-shadow:inset 0 -8px 0 #D6B592, 0 16px 26px -18px rgba(74,59,50,.5);
     display:grid;place-items:center;
   }
   .tray-label{
-    position:absolute;top:-30px;left:50%;transform:translateX(-50%);
-    font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    position:absolute;top:-26px;left:50%;transform:translateX(-50%);
+    font-size:.76rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
     color:var(--cafe-suave);white-space:nowrap;
   }
   .tray-pizza{
-    width:82%;height:82%;cursor:grab;touch-action:none;
+    width:84%;height:84%;cursor:grab;touch-action:none;
     filter:drop-shadow(0 8px 10px rgba(74,59,50,.2));
     transition:transform .3s var(--elastico), opacity .3s;
   }
@@ -325,10 +367,9 @@
   .tray-pizza.used{opacity:0;pointer-events:none}
   .tray-pizza svg{width:100%;height:100%;display:block;pointer-events:none}
 
-  /* ---------- Forno (camadas em 3D: carcaça -> pizza -> porta com vidro) ---------- */
   .oven-scene{
     position:relative;justify-self:center;
-    width:100%;max-width:410px;aspect-ratio:1.307;
+    width:100%;max-width:500px;aspect-ratio:1.307;
     display:flex;align-items:center;justify-content:center;
     perspective:900px;
   }
@@ -339,7 +380,6 @@
   .oven-body-svg{z-index:1}
   .oven-door-svg{z-index:3}
 
-  /* Porta: gira em volta da dobradiça esquerda */
   .oven-door{
     transform-box:fill-box;transform-origin:left center;
     transition:transform .7s var(--elastico);
@@ -362,7 +402,6 @@
     50%{transform:scaleY(1.14)}
   }
 
-  /* Área de soltura dentro da cavidade do forno */
   .oven-drop{
     position:absolute;left:22%;top:42%;width:56%;height:36%;
     border-radius:50%;
@@ -372,12 +411,11 @@
   }
   .oven-drop.active{opacity:1;box-shadow:0 0 0 6px rgba(246,205,106,.35)}
 
-  /* Pizza dentro do forno */
   .oven-pizza{
     position:absolute;
-    left:30%;top:35%;width:40%;aspect-ratio:1;
+    left:29%;top:34%;width:42%;aspect-ratio:1;
     pointer-events:none;opacity:0;
-    transform:perspective(420px) rotateX(64deg) translateY(6px) scale(.86);
+    transform:perspective(420px) rotateX(64deg) translateY(6px) scale(.88);
     transform-origin:center center;
     transition:opacity .35s, transform .5s var(--elastico);
     z-index:2;
@@ -385,11 +423,10 @@
   .oven-pizza.inside{opacity:1}
   .oven-pizza.ready{
     pointer-events:auto;cursor:grab;touch-action:none;
-    transform:perspective(420px) rotateX(58deg) translateY(4px) scale(.90);
+    transform:perspective(420px) rotateX(58deg) translateY(4px) scale(.92);
   }
   .oven-pizza svg{width:100%;height:100%;overflow:visible;display:block;pointer-events:none}
 
-  /* Fumaça quando queima */
   .oven-smoke{
     position:absolute;left:34%;top:26%;width:32%;height:26%;
     pointer-events:none;opacity:0;z-index:4;
@@ -410,14 +447,14 @@
     100%{transform:translateY(-44px) scale(1.5);opacity:0}
   }
 
-  /* ---------- Barra de Assamento com 3 Zonas (Crua | No Ponto | Queimada) ---------- */
+  /* ---------- Barra de assamento com 3 zonas ---------- */
   .progress-wrap{
-    width:min(100%,400px);
+    width:min(100%,440px);
     display:flex;flex-direction:column;gap:4px;
   }
   .progress-labels{
     display:flex;justify-content:space-between;
-    font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
     color:var(--cafe-suave);padding:0 4px;
   }
   .progress-labels .lbl-ok{color:#5C8069}
@@ -427,7 +464,7 @@
     width:100%;height:18px;border-radius:999px;
     background:linear-gradient(90deg,
       #FFF1C1 0%, #FFE49E 55%,
-      #B9DFC4 55%, #A8D5B5 80%,
+      #B9DFC4 55%, #A8D5A5 80%,
       #F5B5A8 80%, #C97B6E 100%);
     box-shadow:inset 0 2px 5px rgba(74,59,50,.18), 0 4px 10px -6px rgba(74,59,50,.35);
     border:2px solid #fff;
@@ -448,16 +485,16 @@
     border-right:3.5px solid var(--cafe);
     transition:width .06s linear;
   }
-  .oven-status{font-size:.95rem;font-weight:600;color:var(--cafe-suave);min-height:1.4em;text-align:center}
+  .oven-status{font-size:.98rem;font-weight:600;color:var(--cafe-suave);min-height:1.4em;text-align:center}
   .oven-footer{
     width:100%;min-height:54px;
     display:flex;align-items:center;justify-content:center;
   }
 
-  /* ---------- Caixa de pizza: vista isométrica limpa ---------- */
+  /* ---------- Caixa de pizza ---------- */
   .box-scene{
     position:relative;justify-self:center;
-    width:100%;max-width:265px;aspect-ratio:1.15;
+    width:100%;max-width:335px;aspect-ratio:1.15;
     display:flex;align-items:center;justify-content:center;
     transition:opacity .5s, transform .6s var(--elastico);
   }
@@ -483,25 +520,39 @@
 
   .box-pizza{
     position:absolute;
-    left:28%;top:35%;width:44%;aspect-ratio:1;
+    left:27%;top:34%;width:46%;aspect-ratio:1;
     pointer-events:none;opacity:0;
-    transform:perspective(420px) rotateX(62deg) translateY(8px) scale(.86);
+    transform:perspective(420px) rotateX(62deg) translateY(8px) scale(.88);
     transform-origin:center center;
     transition:opacity .25s, transform .4s var(--elastico);
     z-index:2;
   }
   .box-pizza.inside{
     opacity:1;
-    transform:perspective(420px) rotateX(62deg) translateY(8px) scale(.90);
+    transform:perspective(420px) rotateX(62deg) translateY(8px) scale(.92);
   }
-  .box-pizza.covered{
-    opacity:0 !important;
-  }
+  .box-pizza.covered{opacity:0 !important}
   .box-pizza svg{width:100%;height:100%;overflow:visible;display:block}
 
   /* ---------- Potes ---------- */
-  .pantry{display:flex;flex-direction:column;gap:12px}
-  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .pantry{
+    display:flex;flex-direction:column;gap:12px;
+    min-width:0;overflow:hidden;
+    transform-origin:right center;
+    transition:
+      transform .55s var(--suave),
+      opacity .4s ease,
+      padding .5s var(--suave);
+  }
+  .app.in-oven .pantry{
+    transform:translateX(115%) scale(.96);
+    opacity:0;
+    padding-left:0;
+    padding-right:0;
+    pointer-events:none;
+  }
+
+  .tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;min-width:180px}
   .tab{
     border:none;cursor:pointer;border-radius:14px;padding:9px 6px;
     background:rgba(255,255,255,.7);color:var(--cafe);font-size:.9rem;font-weight:600;
@@ -511,7 +562,7 @@
   .tab.on{background:var(--sage);box-shadow:inset 0 -3px 0 rgba(74,59,50,.12)}
 
   .pot-grid{
-    flex:1;min-height:0;overflow:auto;
+    flex:1;min-height:0;min-width:180px;overflow:auto;
     display:grid;grid-template-columns:repeat(3,1fr);align-content:start;
     gap:10px;padding:6px 2px 8px;
   }
@@ -549,7 +600,6 @@
     border-radius:999px;padding:1px 6px;pointer-events:none;
   }
 
-  /* ---------- Animações dos ingredientes ---------- */
   @keyframes pop{
     0%{transform:scale(0) rotate(-25deg);opacity:0}
     65%{transform:scale(1.16) rotate(4deg);opacity:1}
@@ -563,31 +613,13 @@
   /* ---------- Pizza flutuante (arraste) ---------- */
   .floating-pizza{
     position:fixed;left:0;top:0;z-index:50;
-    width:170px;height:170px;margin:-85px 0 0 -85px;
+    width:200px;height:200px;margin:-100px 0 0 -100px;
     pointer-events:none;display:none;
     filter:drop-shadow(0 14px 16px rgba(74,59,50,.35));
   }
   .floating-pizza svg{width:100%;height:100%;overflow:visible}
 
-  /* ---------- Feedback de entrega ---------- */
-  .feedback{
-    position:fixed;inset:0;z-index:25;
-    display:grid;place-items:center;
-    pointer-events:none;opacity:0;transition:opacity .3s;
-  }
-  .feedback.show{opacity:1}
-  .feedback-card{
-    display:flex;flex-direction:column;align-items:center;gap:8px;
-    padding:18px 26px;border-radius:26px;background:#fff;
-    box-shadow:var(--sombra);text-align:center;
-    transform:scale(.6);transition:transform .5s var(--elastico);
-  }
-  .feedback.show .feedback-card{transform:scale(1)}
-  .feedback-title{font-size:1.9rem;font-weight:700}
-  .feedback.ok .feedback-title{color:#5C8069}
-  .feedback.bad .feedback-title{color:#B35C4E}
-  .feedback-sub{font-size:.95rem;font-weight:600;color:var(--cafe-suave);max-width:260px}
-
+  /* ---------- Confete e Toast ---------- */
   .confetti{position:fixed;inset:0;pointer-events:none;z-index:24;overflow:hidden}
   .confetti span{
     position:absolute;top:-20px;font-size:1.3rem;
@@ -606,6 +638,129 @@
     white-space:nowrap;
   }
   .toast.show{transform:translate(-50%,0)}
+
+  /* ---------- Modal VIP: reação central após a entrega ---------- */
+  .vip-modal{
+    position:fixed;inset:0;z-index:60;
+    display:grid;place-items:center;
+    padding:20px;
+    background:rgba(74,59,50,.22);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    opacity:0;pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  .vip-modal.show{opacity:1;pointer-events:auto}
+
+  .vip-card{
+    position:relative;
+    width:min(92vw,440px);
+    max-height:92dvh;overflow:auto;
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+    padding:22px 22px 20px;
+    border-radius:30px;
+    background:
+      radial-gradient(circle at 20% 0%, #FFFFFF 0%, transparent 55%),
+      var(--creme);
+    border:3px solid #fff;
+    box-shadow:0 30px 60px -20px rgba(74,59,50,.45), 0 0 0 6px rgba(244,172,183,.25);
+    transform:scale(.7) translateY(24px);
+    opacity:0;
+    transition:transform .5s var(--elastico), opacity .35s ease;
+    text-align:center;
+  }
+  .vip-modal.show .vip-card{transform:scale(1) translateY(0);opacity:1}
+  .vip-modal.leaving .vip-card{transform:scale(.85) translateY(16px);opacity:0;transition:transform .35s var(--suave), opacity .3s ease}
+
+  .vip-stage{
+    display:flex;align-items:center;justify-content:center;gap:10px;
+    width:100%;
+  }
+  .vip-avatar{
+    width:220px;height:220px;border-radius:50%;
+    border:6px solid #fff;overflow:hidden;position:relative;
+    box-shadow:0 14px 28px -14px rgba(74,59,50,.5);
+    display:flex;align-items:center;justify-content:center;
+    animation:vipBounce .7s var(--elastico) both;
+  }
+  .vip-avatar > svg{width:100%;height:100%;display:block}
+  .vip-avatar.duo-item{width:180px;height:180px;border-width:5px}
+  @keyframes vipBounce{
+    0%{transform:scale(.4) rotate(-8deg);opacity:0}
+    60%{transform:scale(1.06) rotate(2deg);opacity:1}
+    100%{transform:scale(1) rotate(0)}
+  }
+
+  .vip-sparkles{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .vip-sparkles svg{width:22px;height:22px;animation:twinkle 2.4s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+  .vip-sparkles svg:nth-child(2){animation-delay:.6s;width:14px;height:14px}
+  .vip-sparkles svg:nth-child(3){animation-delay:1.2s}
+  .vip-sparkles .heart{width:28px;height:28px;animation:beat 2s ease-in-out infinite}
+
+  .vip-stamp{
+    font-size:1.7rem;font-weight:700;line-height:1.05;
+    padding:6px 18px;border-radius:999px;
+    box-shadow:0 6px 0 rgba(74,59,50,.12);
+    transform:rotate(-3deg);
+    animation:stampIn .5s .25s var(--elastico) both;
+  }
+  .vip-stamp.ok{background:var(--verde);color:#2F5A41}
+  .vip-stamp.bad{background:var(--coral);color:#7A3B31}
+  @keyframes stampIn{
+    0%{transform:rotate(-3deg) scale(2.2);opacity:0}
+    100%{transform:rotate(-3deg) scale(1);opacity:1}
+  }
+
+  .vip-speech{
+    position:relative;
+    background:#fff;border-radius:22px;
+    padding:14px 18px;
+    font-size:1.1rem;font-weight:600;line-height:1.35;
+    color:var(--cafe);
+    box-shadow:0 10px 20px -14px rgba(74,59,50,.45);
+    max-width:100%;
+    animation:popIn .45s .15s var(--elastico) both;
+  }
+  .vip-speech::before{
+    content:'';position:absolute;top:-12px;left:50%;margin-left:-11px;
+    border:11px solid transparent;border-top:none;border-bottom-color:#fff;
+  }
+  .vip-speech.ok{background:#F4FBF6}
+  .vip-speech.ok::before{border-bottom-color:#F4FBF6}
+  .vip-speech.bad{background:#FFF4F1}
+  .vip-speech.bad::before{border-bottom-color:#FFF4F1}
+
+  .vip-detail{
+    font-size:.9rem;font-weight:600;color:var(--cafe-suave);line-height:1.3;
+    max-width:340px;
+  }
+  .vip-detail:empty{display:none}
+
+  .vip-btn{
+    margin-top:4px;border:none;cursor:pointer;
+    border-radius:999px;padding:12px 32px;
+    font-size:1.1rem;font-weight:700;color:var(--cafe);
+    background:var(--rosa);
+    box-shadow:0 7px 0 #E08E9D, 0 14px 22px -12px rgba(74,59,50,.45);
+    transition:transform .2s var(--elastico), box-shadow .2s;
+  }
+  .vip-btn:hover{transform:translateY(-2px)}
+  .vip-btn:active{transform:translateY(5px);box-shadow:0 2px 0 #E08E9D}
+
+  .vip-timer{
+    position:absolute;left:0;bottom:0;height:4px;width:100%;
+    border-radius:0 0 30px 30px;overflow:hidden;
+  }
+  .vip-timer::after{
+    content:'';display:block;height:100%;width:100%;
+    background:linear-gradient(90deg,var(--rosa),var(--manteiga));
+    transform-origin:left center;
+    animation:vipTimer 4s linear forwards;
+  }
+  @keyframes vipTimer{
+    from{transform:scaleX(1)}
+    to{transform:scaleX(0)}
+  }
 
   /* ---------- Tela inicial ---------- */
   .start{
@@ -687,17 +842,22 @@
   /* ---------- Responsivo: celular em pé e tablet ---------- */
   @media (max-width:900px) and (orientation:portrait){
     body{overflow:auto}
-    .app{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:auto}
+    .app,.app.in-oven{height:auto;min-height:100dvh;grid-template-columns:1fr;grid-template-rows:auto}
     .counter{overflow:visible}
     .comanda-wrap{overflow:visible}
-    .comanda{max-width:360px;width:100%;margin:0 auto}
+    .comanda{max-width:380px;width:100%;margin:0 auto}
+    .avatar{width:180px;height:180px}
+    .duo .avatar{width:150px;height:150px}
     .bench{min-height:70dvh}
     .table{width:min(88vw,400px)}
     .pot-grid{overflow:visible;grid-template-columns:repeat(4,1fr)}
     .pot svg{width:52px;height:52px}
     .toast{bottom:16px}
     .oven-row{grid-template-columns:1fr;gap:16px}
-    .tray{width:min(60vw,200px)}
+    .tray{width:min(65vw,230px)}
+    .vip-avatar{width:180px;height:180px}
+    .vip-avatar.duo-item{width:140px;height:140px}
+    .vip-speech{font-size:1rem}
   }
   @media (max-width:480px) and (orientation:portrait){
     .app{padding:12px}
@@ -705,13 +865,16 @@
     .seg{padding:7px 10px;font-size:.82rem}
   }
 
-  /* ---------- Celular deitado: 3 colunas compactas ---------- */
+  /* ---------- Celular deitado: 3 colunas na bancada -> 2 colunas amplas no forno ---------- */
   @media (orientation:landscape) and (max-height:550px){
     .app{
       height:100dvh;min-height:0;
-      grid-template-columns:215px 1fr 225px;
+      grid-template-columns:255px 1fr 225px;
       grid-template-rows:auto 1fr;
       gap:8px;padding:8px 12px;overflow:hidden;
+    }
+    .app.in-oven{
+      grid-template-columns:255px 1fr 0px;
     }
     body{overflow:hidden}
     .top{gap:8px}
@@ -724,10 +887,10 @@
 
     .comanda{padding:12px 10px 10px;border-radius:14px}
     .comanda-head{font-size:.62rem;margin-bottom:2px}
-    .avatar{width:64px;height:64px;border-width:3px;margin-top:2px}
-    .avatar .mood{width:18px;height:18px;top:2px;right:-4px}
+    .avatar{width:130px;height:130px;border-width:4px;margin-top:2px}
+    .avatar .mood{width:24px;height:24px;top:2px;right:-4px}
     .duo{margin-top:2px;gap:2px}
-    .duo .avatar{width:52px;height:52px}
+    .duo .avatar{width:112px;height:112px;border-width:3px}
     .sparkles svg{width:12px;height:12px}
     .sparkles .heart{width:14px;height:14px}
     .skins{margin-top:4px}
@@ -737,6 +900,9 @@
     .client{font-size:.95rem;margin-top:4px}
     .bubble{font-size:.7rem;line-height:1.25;padding:6px 8px;margin-top:8px}
     .bubble::before{border-width:6px;margin-left:-6px;top:-6px}
+    .comanda-feedback{margin-top:6px;padding:6px 8px}
+    .comanda-feedback .fb-title{font-size:.9rem}
+    .comanda-feedback .fb-sub{font-size:.62rem}
     .items{margin-top:4px}
     .items li{font-size:.7rem;padding:3px 0;gap:6px}
     .items i{width:11px;height:11px;border-width:1.5px}
@@ -752,19 +918,21 @@
     .table::before{inset:6%}
     .hint{font-size:.62rem;min-height:0;line-height:1.2}
     .actions{gap:6px}
-    .btn{padding:6px 12px;font-size:.72rem;box-shadow:0 3px 0 rgba(74,59,50,.14)}
+    .btn{padding:6px 13px;font-size:.74rem;box-shadow:0 3px 0 rgba(74,59,50,.14)}
     .btn-next svg,.btn-back svg{width:14px;height:14px}
-    .oven-stage{gap:4px}
-    .oven-row{grid-template-columns:0.8fr 1.4fr 0.9fr;gap:6px}
-    .tray{width:min(100%,110px)}
-    .tray-label{font-size:.5rem;top:-18px}
-    .oven-status{font-size:.7rem}
+
+    .oven-stage{gap:4px;padding:2px 6px}
+    .oven-row{grid-template-columns:0.85fr 1.55fr 1.05fr;gap:10px;padding-top:16px}
+    .tray{width:min(100%, 38dvh, 148px)}
+    .tray-label{font-size:.56rem;top:-17px}
+    .oven-scene{max-width:min(100%, 54dvh, 285px)}
+    .box-scene{max-width:min(100%, 42dvh, 190px)}
+    .oven-status{font-size:.74rem}
     .oven-footer{min-height:34px}
-    .progress-wrap{width:min(100%,270px)}
-    .progress-labels{font-size:.52rem}
+    .progress-wrap{width:min(100%, 310px)}
+    .progress-labels{font-size:.54rem}
     .progress{height:12px}
-    .box-scene{max-width:120px}
-    .floating-pizza{width:120px;height:120px;margin:-60px 0 0 -60px}
+    .floating-pizza{width:155px;height:155px;margin:-77px 0 0 -77px}
 
     .pantry{gap:6px}
     .tabs{gap:4px}
@@ -774,6 +942,19 @@
     .pot svg{width:38px;height:38px}
     .pot span{font-size:.65rem;line-height:1}
     .badge{font-size:.5rem;padding:0 4px;top:-4px;right:-2px}
+
+    /* Modal VIP em paisagem: avatar grande, mas cabe na altura da tela */
+    .vip-card{width:min(88vw,560px);max-height:94dvh;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:8px 16px;padding:14px 18px 16px}
+    .vip-stage{width:auto;flex:0 0 auto}
+    .vip-avatar{width:200px;height:200px}
+    .vip-avatar.duo-item{width:150px;height:150px}
+    .vip-sparkles svg{width:14px;height:14px}
+    .vip-sparkles .heart{width:18px;height:18px}
+    .vip-stamp{font-size:1.2rem;padding:4px 14px}
+    .vip-speech{font-size:.9rem;padding:10px 14px;max-width:260px}
+    .vip-detail{font-size:.72rem}
+    .vip-btn{padding:8px 24px;font-size:.95rem}
+    .vip-text{display:flex;flex-direction:column;align-items:center;gap:8px;max-width:260px}
 
     .feedback-title{font-size:1.4rem}
     .feedback-card{padding:12px 18px}
@@ -790,7 +971,7 @@
   }
 
   @media (hover:none){
-    .pot:hover,.tab:hover,.seg:hover,.skin-pill:hover,.btn:hover,.start-btn:hover,.pill:hover,.tray-pizza:hover,.box-scene.can-close:hover{transform:none}
+    .pot:hover,.tab:hover,.seg:hover,.skin-pill:hover,.btn:hover,.start-btn:hover,.pill:hover,.tray-pizza:hover,.box-scene.can-close:hover,.vip-btn:hover{transform:none}
   }
 </style>
 </head>
@@ -871,6 +1052,10 @@
         <div class="skins" id="skins"></div>
         <div class="client" id="client"></div>
         <div class="bubble" id="say"></div>
+        <div class="comanda-feedback" id="comandaFeedback" role="status" aria-live="assertive">
+          <div class="fb-title" id="fbTitle"></div>
+          <div class="fb-sub" id="fbSub"></div>
+        </div>
         <ul class="items" id="items"></ul>
       </div>
     </div>
@@ -911,15 +1096,12 @@
         </div>
 
         <div class="oven-row">
-          <!-- Bandeja: de onde a pizza montada é arrastada -->
           <div class="tray" id="tray">
             <span class="tray-label">Sua pizza</span>
             <div class="tray-pizza" id="trayPizza" aria-label="Arraste a pizza para o forno"></div>
           </div>
 
-          <!-- Forno com camadas reais: 1) Carcaça/Interior -> 2) Pizza -> 3) Porta com vidro -->
           <div class="oven-scene" id="ovenScene">
-            <!-- Camada 1: Carcaça e interior do forno -->
             <svg class="oven-svg oven-body-svg" viewBox="0 0 340 260" aria-hidden="true">
               <defs>
                 <linearGradient id="ovenCavity" x1="0" y1="0" x2="0" y2="1">
@@ -956,18 +1138,15 @@
               <rect x="276" y="236" width="24" height="16" rx="5" fill="#C98E7A"/>
             </svg>
 
-            <!-- Camada 2: Zona de drop e Pizza deitada na grelha -->
             <div class="oven-drop" id="ovenDrop"></div>
             <div class="oven-pizza" id="ovenPizza"></div>
 
-            <!-- Fumacinha caso queime -->
             <div class="oven-smoke" id="ovenSmoke" aria-hidden="true">
               <span class="smoke-puff"></span>
               <span class="smoke-puff"></span>
               <span class="smoke-puff"></span>
             </div>
 
-            <!-- Camada 3: Porta com vidro transparente (por cima da pizza) -->
             <svg class="oven-svg oven-door-svg" viewBox="0 0 340 260" aria-hidden="true">
               <g class="oven-door closed" id="ovenDoor">
                 <path fill-rule="evenodd"
@@ -982,9 +1161,7 @@
             </svg>
           </div>
 
-          <!-- Caixa de pizza em perspectiva isométrica/superior limpa -->
           <div class="box-scene hidden" id="boxScene" title="Clique na caixa para fechar">
-            <!-- Camada 1: Fundo da caixa + Tampa aberta inclinada para cima -->
             <svg class="box-svg box-base-svg" viewBox="0 0 260 220" aria-hidden="true">
               <polygon points="16,184 244,184 234,202 26,202" fill="#4A3B32" opacity=".12"/>
               <g id="boxLidOpen">
@@ -998,18 +1175,15 @@
               <ellipse cx="130" cy="144" rx="52" ry="18" fill="none" stroke="#E0BE8B" stroke-width="1.5" stroke-dasharray="4 4"/>
             </svg>
 
-            <!-- Camada 2: Área de drop e a pizza encaixada no fundo -->
             <div class="box-drop" id="boxDrop"></div>
             <div class="box-pizza" id="boxPizza"></div>
 
-            <!-- Camada 3: Borda frontal e abas laterais na frente da pizza -->
             <svg class="box-svg box-front-svg" viewBox="0 0 260 220" aria-hidden="true">
               <polygon points="34,112 16,180 16,192 34,126" fill="#E5C48E" stroke="#C9A77B" stroke-width="2" stroke-linejoin="round"/>
               <polygon points="226,112 244,180 244,192 226,126" fill="#E5C48E" stroke="#C9A77B" stroke-width="2" stroke-linejoin="round"/>
               <path d="M16 180 L244 180 L244 193 Q244 199 237 199 L23 199 Q16 199 16 193 Z" fill="#EAD0A3" stroke="#C9A77B" stroke-width="2.5" stroke-linejoin="round"/>
             </svg>
 
-            <!-- Camada 4: Tampa fechada (100% opaca, aparece ao fechar a caixa) -->
             <svg class="box-svg box-lid-svg" viewBox="0 0 260 220" aria-hidden="true" id="boxLidClosed" style="display:none">
               <polygon points="38,104 222,104 244,178 16,178" fill="#F7E5C8" stroke="#C9A77B" stroke-width="2.5" stroke-linejoin="round"/>
               <path d="M16 178 L244 178 L244 192 Q244 198 237 198 L23 198 Q16 198 16 192 Z" fill="#ECD1A3" stroke="#C9A77B" stroke-width="2.5" stroke-linejoin="round"/>
@@ -1020,7 +1194,6 @@
           </div>
         </div>
 
-        <!-- Barra de Assamento Contínua (3 zonas) -->
         <div class="progress-wrap" id="ovenProgress" aria-hidden="true" style="visibility:hidden">
           <div class="progress-labels">
             <span>Crua</span>
@@ -1069,22 +1242,28 @@
     </div>
   </section>
 
-  <aside class="pantry panel">
+  <aside class="pantry panel" id="pantryPanel">
     <div class="tabs" id="tabs"></div>
     <div class="pot-grid" id="pots"></div>
   </aside>
 </div>
 
-<!-- Pizza flutuante: segue o dedo/mouse durante o arraste -->
-<div class="floating-pizza" id="floatingPizza" aria-hidden="true"></div>
-
-<!-- Feedback de entrega -->
-<div class="feedback" id="feedback" aria-live="assertive">
-  <div class="feedback-card">
-    <h3 class="feedback-title" id="feedbackTitle"></h3>
-    <p class="feedback-sub" id="feedbackSub"></p>
+<!-- ========== MODAL DE REAÇÃO VIP (após entrega de Arthur, Letícia ou dupla) ========== -->
+<div class="vip-modal" id="vipReactionModal" role="dialog" aria-modal="true" aria-labelledby="vipStamp">
+  <div class="vip-card" id="vipCard">
+    <div class="vip-stage" id="vipStage"></div>
+    <div class="vip-text">
+      <div class="vip-stamp" id="vipStamp"></div>
+      <div class="vip-speech" id="vipSpeech"></div>
+      <div class="vip-detail" id="vipDetail"></div>
+      <button class="vip-btn" id="vipContinue">Continuar ♡</button>
+    </div>
+    <div class="vip-timer" aria-hidden="true"></div>
   </div>
 </div>
+
+<div class="floating-pizza" id="floatingPizza" aria-hidden="true"></div>
+
 <div class="confetti" id="confetti" aria-hidden="true"></div>
 
 <div class="toast" id="toast"></div>
@@ -1198,10 +1377,200 @@ function acessoriosSVG(lista, accent){
 }
 
 /* =========================================================
-   4. DESENHO DO ARTHUR
+   4. EXPRESSÕES (rosto de cada personagem)
    ========================================================= */
-function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual){
+
+function faceArthur(c, mood){
+  if (mood === 'happy'){
+    return {
+      olhos: `
+        <path d="M44.5 57 Q50.5 49.5 56.5 57" fill="none" stroke="#4F3D31" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M63.5 57 Q69.5 49.5 75.5 57" fill="none" stroke="#4F3D31" stroke-width="2.4" stroke-linecap="round"/>
+        <circle cx="50.5" cy="56" r="1.3" fill="${c.pupila}" opacity=".6"/>
+        <circle cx="69.5" cy="56" r="1.3" fill="${c.pupila}" opacity=".6"/>`,
+      sobrancelhas: `
+        <path d="M44 46 Q50.5 42.5 56.5 45" stroke="#4F3D31" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M63.5 45 Q69.5 42.5 76 46" stroke="#4F3D31" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+      boca: `
+        <path d="M48 66 Q60 80 72 66 Q60 72 48 66 Z" fill="#FFFFFF" stroke="#5A4338" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M51 68.5 Q60 75 69 68.5 Q60 71 51 68.5 Z" fill="#E88A8A" opacity=".85"/>`,
+      bochechas: `
+        <ellipse cx="42" cy="65" rx="5.5" ry="3.3" fill="#F28C8C" opacity=".75"/>
+        <ellipse cx="78" cy="65" rx="5.5" ry="3.3" fill="#F28C8C" opacity=".75"/>`,
+      extras: `
+        <path d="M89 42 L91 46 L95 48 L91 50 L89 54 L87 50 L83 48 L87 46 Z" fill="#FFF1C1" stroke="#E6D29B" stroke-width=".5"/>
+        <path d="M22 40 C18 36 12 39 14 45 C15 49 22 53 22 53 C22 53 29 49 30 45 C32 39 26 36 22 40 Z" fill="#F4ACB7" opacity=".9"/>`,
+    };
+  }
+  if (mood === 'sad'){
+    return {
+      olhos: `
+        <ellipse cx="50.5" cy="58" rx="2.8" ry="2.2" fill="${c.olhos}"/>
+        <ellipse cx="69.5" cy="58" rx="2.8" ry="2.2" fill="${c.olhos}"/>
+        <circle cx="50.5" cy="58" r="1" fill="${c.pupila}"/>
+        <circle cx="69.5" cy="58" r="1" fill="${c.pupila}"/>
+        <path d="M44.5 54.5 Q50.5 56.5 56.5 54" fill="none" stroke="#4F3D31" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M63.5 54 Q69.5 56.5 75.5 54.5" fill="none" stroke="#4F3D31" stroke-width="1.8" stroke-linecap="round"/>`,
+      sobrancelhas: `
+        <path d="M44 49 L55.5 45.5" stroke="#4F3D31" stroke-width="2.2" stroke-linecap="round"/>
+        <path d="M76 49 L64.5 45.5" stroke="#4F3D31" stroke-width="2.2" stroke-linecap="round"/>`,
+      boca: `<path d="M51 72 Q60 66 69 72" fill="none" stroke="#5A4338" stroke-width="2.3" stroke-linecap="round"/>`,
+      bochechas: '',
+      extras: `<path d="M80 44 Q84 52 80 58 Q76 52 80 44 Z" fill="#8FC6E8" stroke="#6BA8CF" stroke-width=".6"/>`,
+    };
+  }
+  return {
+    olhos: `
+      <path d="M44 51 L55.5 51.5" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
+      <path d="M64.5 51.5 L76 51" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="50.5" cy="57" r="3" fill="${c.olhos}"/>
+      <circle cx="69.5" cy="57" r="3" fill="${c.olhos}"/>
+      <circle cx="50.5" cy="57" r="1.4" fill="${c.pupila}"/>
+      <circle cx="69.5" cy="57" r="1.4" fill="${c.pupila}"/>
+      <circle cx="51.4" cy="55.9" r=".9" fill="#fff"/>
+      <circle cx="70.4" cy="55.9" r=".9" fill="#fff"/>`,
+    sobrancelhas: '',
+    boca: `<path d="M53 68 Q60 72.5 67 67.5" stroke="#5A4338" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+    bochechas: `
+      <ellipse cx="43" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
+      <ellipse cx="77" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>`,
+    extras: '',
+  };
+}
+
+function faceLeticia(c, mood){
+  if (mood === 'happy'){
+    return {
+      olhos: `
+        <path d="M43.5 57 Q50.5 48.5 57.5 57" fill="none" stroke="${c.cabelo}" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M62.5 57 Q69.5 48.5 76.5 57" fill="none" stroke="${c.cabelo}" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M43 52.5 Q44.5 50.5 46 52.5 M48 51 Q49.5 49 51 51" stroke="${c.olhos}" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <path d="M62 51.5 Q63.5 49.5 65 51.5 M69 49.5 Q70.5 47.5 72 49.5" stroke="${c.olhos}" stroke-width="1" fill="none" stroke-linecap="round"/>`,
+      sobrancelhas: `
+        <path d="M44 45 Q50.5 42 56.5 44.5" stroke="${c.cabelo}" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M63.5 44.5 Q69.5 42 76 45" stroke="${c.cabelo}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+      boca: `
+        <path d="M48 65 Q60 81 72 65 Q60 71 48 65 Z" fill="#FFFFFF" stroke="#C96F78" stroke-width="1.8" stroke-linejoin="round"/>
+        <path d="M51 67 Q60 74.5 69 67 Q60 70.5 51 67 Z" fill="#E88A8A" opacity=".9"/>`,
+      bochechas: `
+        <ellipse cx="41" cy="64" rx="5.2" ry="3.2" fill="#F28C8C" opacity=".85"/>
+        <ellipse cx="79" cy="64" rx="5.2" ry="3.2" fill="#F28C8C" opacity=".85"/>`,
+      extras: `
+        <path d="M18 34 C14 30 8 33 10 39 C11 43 18 47 18 47 C18 47 25 43 26 39 C28 33 22 30 18 34 Z" fill="#F4ACB7" opacity=".9"/>
+        <path d="M100 30 C97 27 93 29 94 33 C95 36 100 39 100 39 C100 39 105 36 106 33 C107 29 103 27 100 30 Z" fill="#FFD6DE" opacity=".85"/>
+        <circle cx="94" cy="46" r="1.6" fill="#F4ACB7" opacity=".7"/>`,
+    };
+  }
+  if (mood === 'sad'){
+    return {
+      olhos: `
+        <ellipse cx="50.5" cy="58" rx="2.8" ry="3.1" fill="${c.olhos}"/>
+        <ellipse cx="69.5" cy="58" rx="2.8" ry="3.1" fill="${c.olhos}"/>
+        <circle cx="51.2" cy="56.8" r="1" fill="#fff"/>
+        <circle cx="70.2" cy="56.8" r="1" fill="#fff"/>
+        <path d="M45 54.5 Q50.5 57 56 54" fill="none" stroke="${c.cabelo}" stroke-width="1.6" stroke-linecap="round"/>
+        <path d="M65 54 Q69.5 57 76 54.5" fill="none" stroke="${c.cabelo}" stroke-width="1.6" stroke-linecap="round"/>`,
+      sobrancelhas: `
+        <path d="M44 48.5 Q50.5 44 57 47" stroke="${c.cabelo}" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <path d="M64 47 Q69.5 44 76.5 48.5" stroke="${c.cabelo}" stroke-width="2" fill="none" stroke-linecap="round"/>`,
+      boca: `
+        <path d="M55 72 Q60 68 65 72" fill="none" stroke="#C96F78" stroke-width="2" stroke-linecap="round"/>
+        <path d="M57 73.5 Q60 75.5 63 73.5" fill="none" stroke="#C96F78" stroke-width="1" stroke-linecap="round" opacity=".7"/>`,
+      bochechas: '',
+      extras: `
+        <path d="M75 60 Q78 66 75 70 Q72 66 75 60 Z" fill="#8FC6E8" stroke="#6BA8CF" stroke-width=".6"/>
+        <path d="M46 62 Q44 66 46 68" fill="none" stroke="#8FC6E8" stroke-width="1.2" stroke-linecap="round"/>`,
+    };
+  }
+  return {
+    olhos: `
+      <path d="M44 50 Q50 47 56 49.5" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+      <path d="M64 49.5 Q70 47 76 50" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
+      <ellipse cx="50.5" cy="56" rx="2.5" ry="3" fill="${c.olhos}"/>
+      <ellipse cx="69.5" cy="56" rx="2.5" ry="3" fill="${c.olhos}"/>
+      <circle cx="51.3" cy="54.9" r=".9" fill="#fff"/>
+      <circle cx="70.3" cy="54.9" r=".9" fill="#fff"/>`,
+    sobrancelhas: '',
+    boca: `<path d="M51 66 Q60 75 69 66 Z" fill="#FFFFFF" stroke="#C96F78" stroke-width="1.6" stroke-linejoin="round"/>`,
+    bochechas: `
+      <ellipse cx="43" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
+      <ellipse cx="77" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>`,
+    extras: '',
+  };
+}
+
+function faceRandom(mood){
+  if (mood === 'happy'){
+    return {
+      olhos: `
+        <path d="M44.5 57 Q50.5 50 56.5 57" fill="none" stroke="#3B2A22" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M63.5 57 Q69.5 50 75.5 57" fill="none" stroke="#3B2A22" stroke-width="2.4" stroke-linecap="round"/>`,
+      sobrancelhas: '',
+      boca: `
+        <path d="M49 66 Q60 79 71 66 Q60 71 49 66 Z" fill="#FFFFFF" stroke="#4A3B32" stroke-width="2" stroke-linejoin="round"/>
+        <path d="M52 68 Q60 74 68 68 Q60 70.5 52 68 Z" fill="#E88A8A" opacity=".85"/>`,
+      bochechas: `
+        <ellipse cx="43" cy="66" rx="4.5" ry="2.8" fill="#F28C8C" opacity=".7"/>
+        <ellipse cx="77" cy="66" rx="4.5" ry="2.8" fill="#F28C8C" opacity=".7"/>`,
+      extras: `<path d="M86 40 C84 37 80 39 81 43 C82 45 86 47 86 47 C86 47 90 45 91 43 C92 39 88 37 86 40 Z" fill="#F4ACB7" opacity=".85"/>`,
+    };
+  }
+  if (mood === 'sad'){
+    return {
+      olhos: `
+        <circle cx="50" cy="58" r="2.5" fill="#3B2A22"/>
+        <circle cx="70" cy="58" r="2.5" fill="#3B2A22"/>
+        <circle cx="50.9" cy="57" r=".7" fill="#fff"/>
+        <circle cx="70.9" cy="57" r=".7" fill="#fff"/>`,
+      sobrancelhas: `
+        <path d="M44 49 L55 46" stroke="#4A3B32" stroke-width="2" stroke-linecap="round"/>
+        <path d="M76 49 L65 46" stroke="#4A3B32" stroke-width="2" stroke-linecap="round"/>`,
+      boca: `<path d="M51 72 Q60 66 69 72" fill="none" stroke="#4A3B32" stroke-width="2.2" stroke-linecap="round"/>`,
+      bochechas: '',
+      extras: `<path d="M80 44 Q84 52 80 58 Q76 52 80 44 Z" fill="#8FC6E8" stroke="#6BA8CF" stroke-width=".6"/>`,
+    };
+  }
+  return {
+    olhos: `
+      <circle cx="50" cy="57" r="2.6" fill="#3B2A22"/>
+      <circle cx="70" cy="57" r="2.6" fill="#3B2A22"/>
+      <circle cx="50.9" cy="56" r=".8" fill="#fff"/>
+      <circle cx="70.9" cy="56" r=".8" fill="#fff"/>`,
+    sobrancelhas: '',
+    boca: `<path d="M53 68 Q60 73 67 68" stroke="#4A3B32" stroke-width="2.2" fill="none" stroke-linecap="round"/>`,
+    bochechas: `
+      <ellipse cx="43" cy="66" rx="4" ry="2.4" fill="#F4ACB7" opacity=".6"/>
+      <ellipse cx="77" cy="66" rx="4" ry="2.4" fill="#F4ACB7" opacity=".6"/>`,
+    extras: '',
+  };
+}
+
+function moodFx(mood){
+  if (mood === 'happy'){
+    return `
+      <svg class="face-fx" viewBox="0 0 120 120" aria-hidden="true">
+        <path class="float" style="animation-delay:0s" d="M100 28 C98 24 92 26 93 31 C94 34 100 38 100 38 C100 38 106 34 107 31 C108 26 102 24 100 28 Z" fill="#F4ACB7"/>
+        <path class="float" style="animation-delay:.35s" d="M16 26 C14 22 8 24 9 29 C10 32 16 36 16 36 C16 36 22 32 23 29 C24 24 18 22 16 26 Z" fill="#F4ACB7" opacity=".9"/>
+        <path class="float" style="animation-delay:.7s" d="M106 60 l2 4 l4 1 l-4 1 l-2 4 l-2 -4 l-4 -1 l4 -1 z" fill="#FFF1C1"/>
+      </svg>`;
+  }
+  if (mood === 'sad'){
+    return `
+      <svg class="face-fx" viewBox="0 0 120 120" aria-hidden="true">
+        <path class="float" style="animation-delay:0s" d="M92 32 Q95 40 92 44 Q89 40 92 32 Z" fill="#8FC6E8" stroke="#6BA8CF" stroke-width=".6"/>
+        <path class="float" style="animation-delay:.5s" d="M24 40 Q27 48 24 52 Q21 48 24 40 Z" fill="#8FC6E8" stroke="#6BA8CF" stroke-width=".6" opacity=".85"/>
+      </svg>`;
+  }
+  return '';
+}
+
+/* =========================================================
+   5. DESENHOS COMPLETOS DOS PERSONAGENS
+   ========================================================= */
+
+function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual, mood = 'neutral'){
   const accent = skin.accent || '#F4ACB7';
+  const f = faceArthur(c, mood);
 
   const roupa = roupaSVG(skin.roupaTipo, skin.roupa, accent, c.pele);
   const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
@@ -1229,35 +1598,18 @@ function drawArthur(c = ARTHUR_CFG, skin = SKINS.arthur.casual){
              M52 22 Q40 28 37 44 M58 22 Q73 27 81 43"
           stroke="#231812" stroke-width="1" stroke-linecap="round" fill="none" opacity=".45"/>`;
 
-  const olhos = `
-    <path d="M44 51 L55.5 51.5" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
-    <path d="M64.5 51.5 L76 51" stroke="#4F3D31" stroke-width="2" stroke-linecap="round"/>
-    <circle cx="50.5" cy="57" r="3" fill="${c.olhos}"/>
-    <circle cx="69.5" cy="57" r="3" fill="${c.olhos}"/>
-    <circle cx="50.5" cy="57" r="1.4" fill="${c.pupila}"/>
-    <circle cx="69.5" cy="57" r="1.4" fill="${c.pupila}"/>
-    <circle cx="51.4" cy="55.9" r=".9" fill="#fff"/>
-    <circle cx="70.4" cy="55.9" r=".9" fill="#fff"/>`;
-
-  const detalhes = `
-    <ellipse cx="43" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
-    <ellipse cx="77" cy="65" rx="4.5" ry="2.6" fill="#F4ACB7" opacity=".55"/>
-    <path d="M53 68 Q60 72.5 67 67.5" stroke="#5A4338" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
-
   const acessorios = acessoriosSVG(skin.acessorios || [], accent);
 
   return `<svg viewBox="0 0 120 120" aria-hidden="true">
     ${roupa}${capuz}${cabeloTras}${pescoco}${rosto}${cabeloFrente}
-    ${olhos}${detalhes}${acessorios}
+    ${f.bochechas}${f.olhos}${f.sobrancelhas}${f.boca}${f.extras}${acessorios}
   </svg>`;
 }
 
-/* =========================================================
-   5. DESENHO DA LETÍCIA
-   ========================================================= */
-function drawLeticia(c = LETICIA_CFG, skin = SKINS.leticia.casual){
+function drawLeticia(c = LETICIA_CFG, skin = SKINS.leticia.casual, mood = 'neutral'){
   const accent = skin.accent || '#F4ACB7';
   const brinco = skin.brinco ?? c.brinco;
+  const f = faceLeticia(c, mood);
 
   const capuz = skin.capuz ? capuzSVG(skin.roupa, accent) : '';
 
@@ -1284,195 +1636,68 @@ function drawLeticia(c = LETICIA_CFG, skin = SKINS.leticia.casual){
       <circle cx="84" cy="68" r="2.4"/>
     </g>` : '';
 
-  const olhos = `
-    <path d="M44 50 Q50 47 56 49.5" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
-    <path d="M64 49.5 Q70 47 76 50" stroke="${c.cabelo}" stroke-width="2.1" fill="none" stroke-linecap="round"/>
-    <ellipse cx="50.5" cy="56" rx="2.5" ry="3" fill="${c.olhos}"/>
-    <ellipse cx="69.5" cy="56" rx="2.5" ry="3" fill="${c.olhos}"/>
-    <circle cx="51.3" cy="54.9" r=".9" fill="#fff"/>
-    <circle cx="70.3" cy="54.9" r=".9" fill="#fff"/>`;
-
-  const detalhes = `
-    <ellipse cx="43" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
-    <ellipse cx="77" cy="64" rx="4.6" ry="2.7" fill="#F4ACB7" opacity=".7"/>
-    <path d="M51 66 Q60 75 69 66 Z" fill="#FFFFFF" stroke="#C96F78" stroke-width="1.6" stroke-linejoin="round"/>`;
-
   const acessorios = acessoriosSVG(skin.acessorios || [], accent);
 
   return `<svg viewBox="0 0 120 120" aria-hidden="true">
     ${capuz}${cabeloTras}${roupa}${pescoco}${colar}${rosto}${cabeloFrente}
-    ${brincos}${olhos}${detalhes}${acessorios}
+    ${brincos}${f.bochechas}${f.olhos}${f.sobrancelhas}${f.boca}${f.extras}${acessorios}
   </svg>`;
 }
 
-const SPARKLES_HTML = `
-  <div class="sparkles" aria-hidden="true">
-    <svg viewBox="-10 -10 20 20" class="heart"><path d="M0 6C-8 0-6-6 0-3C6-6 8 0 0 6Z" fill="#F4ACB7"/></svg>
-    <svg viewBox="-10 -10 20 20"><path d="M0-9L2-2L9 0L2 2L0 9L-2 2L-9 0L-2-2Z" fill="#FFF1C1" stroke="#E6D29B" stroke-width=".6"/></svg>
-    <svg viewBox="-10 -10 20 20"><path d="M0-9L2-2L9 0L2 2L0 9L-2 2L-9 0L-2-2Z" fill="#D8E2DC" stroke="#A8C4B5" stroke-width=".6"/></svg>
-  </div>`;
+function portrait(p, mood = 'neutral'){
+  const c = p.hair;
+  const f = faceRandom(mood);
 
-const MOOD = {
-  happy: `<svg class="mood" viewBox="-12 -12 24 24" aria-hidden="true">
-            <circle r="11" fill="#FFF1C1" stroke="#E6D29B" stroke-width="1"/>
-            <path d="M-5 -1 Q-3.5 -4 -2 -1 M2 -1 Q3.5 -4 5 -1" stroke="#4A3B32" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-            <path d="M-5 3 Q0 8 5 3" stroke="#4A3B32" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-          </svg>`,
-  sad: `<svg class="mood" viewBox="-12 -12 24 24" aria-hidden="true">
-          <circle r="11" fill="#F5B5A8" stroke="#D9826F" stroke-width="1"/>
-          <path d="M-5 -1 H-2 M2 -1 H5" stroke="#4A3B32" stroke-width="1.4" stroke-linecap="round"/>
-          <path d="M-4 6 Q0 2 4 6" stroke="#4A3B32" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-          <path d="M9 -8 Q11 -4 9 -2 Q7 -4 9 -8Z" fill="#8FC6E8"/>
-        </svg>`,
-};
+  const cabeloTras = {
+    curta:     `<path d="M34 56 Q32 26 60 25 Q88 26 86 56 L86 60 Q60 46 34 60 Z" fill="${c}"/>`,
+    rabo:      `<path d="M34 56 Q32 26 60 25 Q88 26 86 56 L86 60 Q60 46 34 60 Z" fill="${c}"/>
+                <path d="M80 44 Q100 50 96 82 Q90 88 86 78 Q92 60 80 52 Z" fill="${c}"/>`,
+    cacheada:  `<g fill="${c}"><circle cx="34" cy="48" r="10"/><circle cx="46" cy="32" r="11"/>
+                <circle cx="62" cy="27" r="11"/><circle cx="78" cy="33" r="11"/><circle cx="88" cy="50" r="10"/></g>`,
+    franja:    `<path d="M34 58 Q32 26 60 25 Q88 26 86 58 L86 66 Q60 56 34 66 Z" fill="${c}"/>`,
+    ondulada:  `<path d="M32 60 Q26 92 34 104 Q60 98 86 104 Q94 92 88 60 Q88 24 60 24 Q32 24 32 60 Z" fill="${c}"/>`,
+    coque:     `<circle cx="60" cy="22" r="11" fill="${c}"/>
+                <path d="M34 58 Q32 28 60 27 Q88 28 86 58 Q80 42 60 42 Q40 42 34 58 Z" fill="${c}"/>`,
+  }[p.style] || '';
 
-/* =========================================================
-   6. DADOS: ingredientes, abas e pedidos
-   ========================================================= */
+  const roupa = `
+    <path d="M18 120 Q22 88 60 86 Q98 88 102 120 Z" fill="${p.shirt}"/>
+    <path d="M50 88 Q60 96 70 88" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
 
-const TABS = [
-  { id:'bases',     label:'Bases & Queijos' },
-  { id:'classicos', label:'Clássicos' },
-  { id:'especiais', label:'Especiais da Casa' },
-  { id:'doces',     label:'Doces' },
-];
+  const pescoco = `<rect x="52" y="76" width="16" height="16" rx="6" fill="${p.skin}"/>`;
+  const rosto = `<ellipse cx="60" cy="56" rx="24" ry="26" fill="${p.skin}"/>`;
 
-const ITEMS = {
-  molho:        { name:'Molho de tomate',    tab:'bases',     layer:'base',      kind:'liquido', color:'#F2A596', sprite:'sauce' },
-  creme:        { name:'Creme branco',       tab:'bases',     layer:'base',      kind:'liquido', color:'#FFF9EF', sprite:'sauce' },
-  mussarela:    { name:'Mussarela ralada',   tab:'bases',     layer:'queijo',    kind:'solido',  color:'#FFFBF0', sprite:'cheeseShreds', scale:1.38, step:34 },
-  cream:        { name:'Cream cheese',       tab:'bases',     layer:'queijo',    kind:'solido',  color:'#FFF4E3', sprite:'creamDollop',  scale:1.30, step:36 },
-  ganache:      { name:'Ganache ao leite',   tab:'bases',     layer:'cobertura', kind:'solido',  color:'#8E583E', sprite:'drizzle',      scale:1.55, step:28 },
+  const cabeloFrente = {
+    curta:    `<path d="M36 46 Q40 30 60 30 Q80 30 84 46 Q72 38 60 40 Q48 38 36 46 Z" fill="${c}"/>`,
+    rabo:     `<path d="M36 46 Q40 30 60 30 Q80 30 84 46 Q72 38 60 40 Q48 38 36 46 Z" fill="${c}"/>`,
+    cacheada: '',
+    franja:   `<path d="M34 48 Q38 30 60 30 Q82 30 86 48 L80 42 L72 46 L62 38 Q52 44 44 40 L38 46 Z" fill="${c}"/>`,
+    ondulada: `<path d="M36 48 Q40 30 60 30 Q80 30 84 48 Q72 40 60 42 Q48 40 36 48 Z" fill="${c}"/>`,
+    coque:    '',
+  }[p.style] || '';
 
-  calabresa:    { name:'Calabresa',          tab:'classicos', layer:'cobertura', kind:'solido',  color:'#E58F7C', sprite:'slice',        scale:1.45, step:36 },
-  manjericao:   { name:'Manjericão',         tab:'classicos', layer:'cobertura', kind:'solido',  color:'#96CCA6', sprite:'leaf',         scale:1.40, step:34 },
-  tomatecereja: { name:'Tomate-cereja',      tab:'classicos', layer:'cobertura', kind:'solido',  color:'#EF7F7A', sprite:'cherry',       scale:1.40, step:34 },
+  const extra = {
+    oculos:   `<g fill="none" stroke="#7A6559" stroke-width="1.4">
+                 <circle cx="50" cy="57" r="6"/><circle cx="70" cy="57" r="6"/>
+                 <path d="M56 57 H64"/></g>`,
+    sardas:   `<g fill="#C98E63" opacity=".7">
+                 <circle cx="43" cy="61" r=".9"/><circle cx="46" cy="63" r=".9"/><circle cx="41" cy="64" r=".8"/>
+                 <circle cx="74" cy="61" r=".9"/><circle cx="77" cy="63" r=".9"/><circle cx="79" cy="64" r=".8"/></g>`,
+    gorro:    `<path d="M36 40 Q36 18 60 18 Q84 18 84 40 Z" fill="#F4ACB7"/>
+               <rect x="34" y="36" width="52" height="7" rx="3" fill="#FFF1C1"/>`,
+    presilha: `<path d="M76 34 L84 40 L80 44 L72 38 Z" fill="#E2ECE9" stroke="#A8C4B5" stroke-width=".8"/>`,
+    brinco:   `<circle cx="36" cy="68" r="2.2" fill="#FFF1C1" stroke="#C9A35E" stroke-width=".6"/>
+               <circle cx="84" cy="68" r="2.2" fill="#FFF1C1" stroke="#C9A35E" stroke-width=".6"/>`,
+  }[p.extra] || '';
 
-  batata:       { name:'Batata frita',       tab:'especiais', layer:'cobertura', kind:'solido',  color:'#F6CD6A', sprite:'stick',        scale:1.42, step:36 },
-  cheddar:      { name:'Cheddar cremoso',    tab:'especiais', layer:'queijo',    kind:'solido',  color:'#F5B649', sprite:'drip',         scale:1.35, step:36 },
-  bacon:        { name:'Bacon',              tab:'especiais', layer:'cobertura', kind:'solido',  color:'#EBA5A0', sprite:'bacon',        scale:1.42, step:36 },
-  salmao:       { name:'Salmão fresco',      tab:'especiais', layer:'cobertura', kind:'solido',  color:'#F7A58A', sprite:'cube',         scale:1.38, step:35 },
-  cebolinha:    { name:'Cebolinha',          tab:'especiais', layer:'cobertura', kind:'solido',  color:'#8BC498', sprite:'rod',          scale:1.38, step:32 },
-  gergelim:     { name:'Gergelim',           tab:'especiais', layer:'cobertura', kind:'solido',  color:'#FFF1D6', sprite:'seed',         scale:1.40, step:32 },
-  tare:         { name:'Molho tarê',         tab:'especiais', layer:'cobertura', kind:'solido',  color:'#6E4129', sprite:'drizzle',      scale:1.55, step:28 },
-
-  uva:          { name:'Uva verde',          tab:'doces',     layer:'cobertura', kind:'solido',  color:'#B7DB9C', sprite:'grape',        scale:1.38, step:34 },
-  morango:      { name:'Morango',            tab:'doces',     layer:'cobertura', kind:'solido',  color:'#F28B94', sprite:'berry',        scale:1.45, step:36 },
-};
-
-const F = (...ids) => ids.map(id => ({ id, at:'full' }));
-
-const RANDOM_CLIENTS = [
-  { nome:'Lucas',
-    look:{ skin:'#F1C7A5', hair:'#5A4032', style:'curta', shirt:'#A8D5B5', bg:'#E2ECE9', extra:'oculos' },
-    pedidos:[
-      { say:'E aí! Hoje quero uma calabresa com bastante mussarela, bem caprichada.', items:F('molho','mussarela','calabresa') },
-      { say:'Bora de clássica: molho, mussarela e manjericão fresquinho!', items:F('molho','mussarela','manjericao') },
-      { say:'Calabresa com tomate-cereja, pode ser?', items:F('molho','mussarela','calabresa','tomatecereja') },
-      { say:'Metade calabresa, metade manjericão, bem dividida!',
-        items:[ { id:'molho', at:'full' }, { id:'mussarela', at:'full' }, { id:'calabresa', at:'left' }, { id:'manjericao', at:'right' } ] },
-    ] },
-  { nome:'Bia',
-    look:{ skin:'#E8B894', hair:'#8A4B2E', style:'rabo', shirt:'#F4ACB7', bg:'#FDECE2', extra:'sardas' },
-    pedidos:[
-      { say:'Oi! Quero uma de batata frita com cheddar, pode ser?', items:F('batata','cheddar') },
-      { say:'Metade batata frita, metade calabresa, por favor! Uma por lado.',
-        items:[ { id:'batata', at:'left' }, { id:'cheddar', at:'left' }, { id:'calabresa', at:'right' }, { id:'mussarela', at:'right' } ] },
-      { say:'Batata frita com bacon e cheddar, sem economizar!', items:F('batata','cheddar','bacon') },
-      { say:'Quero uma de morango com creme, bem docinha!', items:F('creme','morango') },
-    ] },
-  { nome:'Gabriel',
-    look:{ skin:'#D9A77F', hair:'#2F2420', style:'cacheada', shirt:'#D8E2DC', bg:'#FFF1C1', extra:'gorro' },
-    pedidos:[
-      { say:'Quero uma pizza de tomate-cereja com manjericão, bem leve!', items:F('molho','tomatecereja','manjericao') },
-      { say:'Me vê uma de bacon com cebolinha? Bem fresquinha!', items:F('bacon','cebolinha') },
-      { say:'Metade bacon, metade tomate-cereja, obrigado!',
-        items:[ { id:'molho', at:'full' }, { id:'bacon', at:'left' }, { id:'tomatecereja', at:'right' } ] },
-    ] },
-  { nome:'Júlia',
-    look:{ skin:'#F6D3B6', hair:'#5B4336', style:'franja', shirt:'#D9CCE8', bg:'#FDECE2', extra:'presilha' },
-    pedidos:[
-      { say:'Hoje é dia de cream cheese com salmão, por favor!', items:F('cream','salmao','cebolinha') },
-      { say:'Quero metade doce e metade salgada! Morango de um lado e mussarela do outro.',
-        items:[ { id:'morango', at:'left' }, { id:'mussarela', at:'right' }, { id:'molho', at:'right' } ] },
-      { say:'Uma de morango com ganache, bem chocolatuda!', items:F('creme','morango','ganache') },
-    ] },
-  { nome:'Mateus',
-    look:{ skin:'#E0B088', hair:'#1F1A17', style:'curta', shirt:'#E2ECE9', bg:'#DCE8F2', extra:'sardas' },
-    pedidos:[
-      { say:'Fala! Calabresa com mussarela, sem frescura.', items:F('molho','mussarela','calabresa') },
-      { say:'Quero uma de batata frita com bacon. Sem economizar no bacon!', items:F('batata','bacon') },
-      { say:'Tarê com gergelim, bem caprichada!', items:F('cream','salmao','gergelim','tare') },
-    ] },
-  { nome:'Camila',
-    look:{ skin:'#F3CBA8', hair:'#B0744A', style:'ondulada', shirt:'#FFF1C1', bg:'#FFF1C1', extra:'brinco' },
-    pedidos:[
-      { say:'Pode ser a de bombom de uva? Creme branco, uva e ganache, por favor!', items:F('creme','uva','ganache') },
-      { say:'Metade doce, metade salgada: uva de um lado e manjericão do outro!',
-        items:[ { id:'creme', at:'left' }, { id:'uva', at:'left' }, { id:'manjericao', at:'right' }, { id:'molho', at:'right' } ] },
-      { say:'Manjericão com tomate-cereja e um pouquinho de uva, quero ousar!', items:F('molho','manjericao','tomatecereja','uva') },
-    ] },
-  { nome:'Rafael',
-    look:{ skin:'#C98E63', hair:'#241A14', style:'rabo', shirt:'#F4ACB7', bg:'#E2ECE9', extra:'oculos' },
-    pedidos:[
-      { say:'Me manda uma de tomate-cereja com manjericão. Bem simples!', items:F('molho','tomatecereja','manjericao') },
-      { say:'Quero uma com salmão e gergelim, sem medo!', items:F('cream','salmao','gergelim','tare') },
-      { say:'Calabresa e cebolinha, sem mussarela hoje!', items:F('molho','calabresa','cebolinha') },
-    ] },
-  { nome:'Larissa',
-    look:{ skin:'#F1C6A7', hair:'#6E4530', style:'coque', shirt:'#A8D5B5', bg:'#F9D3DC', extra:'sardas' },
-    pedidos:[
-      { say:'Oi, tudo bem? Quero uma de batata frita com cheddar, por favor!', items:F('batata','cheddar') },
-      { say:'Uma de morango com creme, bem docinha!', items:F('creme','morango') },
-      { say:'Metade morango, metade batata frita? Acho que combina!',
-        items:[ { id:'creme', at:'full' }, { id:'morango', at:'left' }, { id:'batata', at:'right' }, { id:'cheddar', at:'right' } ] },
-    ] },
-];
-
-const CLIENTES_VIP = {
-  arthur: {
-    nome:'Arthur',
-    pedidos:[
-      { say:'E aí, parceiro! Hoje é dia de calabresa com bastante mussarela, bora?', items:F('molho','mussarela','calabresa') },
-      { say:'Nada de sushi pra mim, hein! Quero uma de batata frita com cheddar e bacon.', items:F('batata','cheddar','bacon') },
-      { say:'Metade calabresa, metade batata frita. Hoje estou com fome de verdade!',
-        items:[ { id:'molho', at:'full' }, { id:'mussarela', at:'full' }, { id:'calabresa', at:'left' }, { id:'batata', at:'right' }, { id:'cheddar', at:'right' } ] },
-      { say:'Me vê uma de manjericão com tomate-cereja. Sem frescura, mas bem fresquinha!', items:F('molho','manjericao','tomatecereja') },
-    ],
-  },
-  leticia: {
-    nome:'Letícia',
-    pedidos:[
-      { say:'Oi, oi! Hoje eu quero a de Bombom de Uva, bem cremosa!', items:F('creme','uva','ganache') },
-      { say:'Me vê uma Pizza de Sushi? Com bastante tarê, por favor!', items:F('cream','salmao','cebolinha','gergelim','tare') },
-      { say:'Batata frita com cheddar e bacon, que dia lindo pra isso!', items:F('batata','cheddar','bacon') },
-      { say:'Metade morango com ganache, metade uva com creme. Quero ser criativa hoje!',
-        items:[ { id:'creme', at:'full' }, { id:'morango', at:'left' }, { id:'ganache', at:'left' }, { id:'uva', at:'right' } ] },
-    ],
-  },
-  dupla: {
-    nome:'Arthur & Letícia',
-    pedidos:[
-      { say:'Oi! Hoje viemos juntos — queremos uma pizza metade Batata Frita e metade Bombom de Uva!',
-        items:[ { id:'batata', at:'left' }, { id:'cheddar', at:'left' }, { id:'bacon', at:'left' },
-                { id:'creme', at:'right' }, { id:'uva', at:'right' }, { id:'ganache', at:'right' } ] },
-      { say:'A gente quer dividir uma de calabresa com manjericão. Metade pra cada um, combinado?',
-        items:[ { id:'molho', at:'full' }, { id:'mussarela', at:'full' }, { id:'calabresa', at:'left' }, { id:'manjericao', at:'right' } ] },
-      { say:'Hoje é dia de sushi pra ela e de calabresa pra ele. Metade cada, pode?',
-        items:[ { id:'cream', at:'right' }, { id:'salmao', at:'right' }, { id:'gergelim', at:'right' }, { id:'tare', at:'right' },
-                { id:'molho', at:'left' }, { id:'calabresa', at:'left' }, { id:'mussarela', at:'left' } ] },
-      { say:'Pizza de morango com ganache pra nós dois! Só uma metade do chocolate, vai?',
-        items:[ { id:'morango', at:'full' }, { id:'ganache', at:'left' } ] },
-      { say:'Uma inteira de tomate-cereja com manjericão, pra dividir sem brigar!',
-        items:[ { id:'molho', at:'full' }, { id:'tomatecereja', at:'full' }, { id:'manjericao', at:'full' } ] },
-      { say:'Batata frita inteira com cheddar e bacon, a gente divide na mordida!',
-        items:[ { id:'batata', at:'full' }, { id:'cheddar', at:'full' }, { id:'bacon', at:'full' } ] },
-    ],
-  },
-};
+  return `<svg viewBox="0 0 120 120" aria-hidden="true">
+    ${roupa}${cabeloTras}${pescoco}${rosto}${cabeloFrente}
+    ${f.bochechas}${f.olhos}${f.sobrancelhas}${f.boca}${f.extras}${extra}
+  </svg>`;
+}
 
 /* =========================================================
-   7. UTILITÁRIOS E ILUSTRAÇÕES DOS INGREDIENTES
+   6. ÍCONES DOS INGREDIENTES
    ========================================================= */
 
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -1631,70 +1856,7 @@ function potArt(it){
     <g transform="translate(0 -3) scale(1.1)">${body}</g>`;
 }
 
-function portrait(p){
-  const c = p.hair;
-
-  const cabeloTras = {
-    curta:     `<path d="M34 56 Q32 26 60 25 Q88 26 86 56 L86 60 Q60 46 34 60 Z" fill="${c}"/>`,
-    rabo:      `<path d="M34 56 Q32 26 60 25 Q88 26 86 56 L86 60 Q60 46 34 60 Z" fill="${c}"/>
-                <path d="M80 44 Q100 50 96 82 Q90 88 86 78 Q92 60 80 52 Z" fill="${c}"/>`,
-    cacheada:  `<g fill="${c}"><circle cx="34" cy="48" r="10"/><circle cx="46" cy="32" r="11"/>
-                <circle cx="62" cy="27" r="11"/><circle cx="78" cy="33" r="11"/><circle cx="88" cy="50" r="10"/></g>`,
-    franja:    `<path d="M34 58 Q32 26 60 25 Q88 26 86 58 L86 66 Q60 56 34 66 Z" fill="${c}"/>`,
-    ondulada:  `<path d="M32 60 Q26 92 34 104 Q60 98 86 104 Q94 92 88 60 Q88 24 60 24 Q32 24 32 60 Z" fill="${c}"/>`,
-    coque:     `<circle cx="60" cy="22" r="11" fill="${c}"/>
-                <path d="M34 58 Q32 28 60 27 Q88 28 86 58 Q80 42 60 42 Q40 42 34 58 Z" fill="${c}"/>`,
-  }[p.style] || '';
-
-  const roupa = `
-    <path d="M18 120 Q22 88 60 86 Q98 88 102 120 Z" fill="${p.shirt}"/>
-    <path d="M50 88 Q60 96 70 88" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".6"/>`;
-
-  const pescoco = `<rect x="52" y="76" width="16" height="16" rx="6" fill="${p.skin}"/>`;
-  const rosto = `<ellipse cx="60" cy="56" rx="24" ry="26" fill="${p.skin}"/>`;
-
-  const cabeloFrente = {
-    curta:    `<path d="M36 46 Q40 30 60 30 Q80 30 84 46 Q72 38 60 40 Q48 38 36 46 Z" fill="${c}"/>`,
-    rabo:     `<path d="M36 46 Q40 30 60 30 Q80 30 84 46 Q72 38 60 40 Q48 38 36 46 Z" fill="${c}"/>`,
-    cacheada: '',
-    franja:   `<path d="M34 48 Q38 30 60 30 Q82 30 86 48 L80 42 L72 46 L62 38 Q52 44 44 40 L38 46 Z" fill="${c}"/>`,
-    ondulada: `<path d="M36 48 Q40 30 60 30 Q80 30 84 48 Q72 40 60 42 Q48 40 36 48 Z" fill="${c}"/>`,
-    coque:    '',
-  }[p.style] || '';
-
-  const olhos = `
-    <circle cx="50" cy="57" r="2.6" fill="#3B2A22"/>
-    <circle cx="70" cy="57" r="2.6" fill="#3B2A22"/>
-    <circle cx="50.9" cy="56" r=".8" fill="#fff"/>
-    <circle cx="70.9" cy="56" r=".8" fill="#fff"/>`;
-
-  const detalhes = `
-    <ellipse cx="43" cy="66" rx="4" ry="2.4" fill="#F4ACB7" opacity=".6"/>
-    <ellipse cx="77" cy="66" rx="4" ry="2.4" fill="#F4ACB7" opacity=".6"/>
-    <path d="M53 68 Q60 73 67 68" stroke="#4A3B32" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
-
-  const extra = {
-    oculos:   `<g fill="none" stroke="#7A6559" stroke-width="1.4">
-                 <circle cx="50" cy="57" r="6"/><circle cx="70" cy="57" r="6"/>
-                 <path d="M56 57 H64"/></g>`,
-    sardas:   `<g fill="#C98E63" opacity=".7">
-                 <circle cx="43" cy="61" r=".9"/><circle cx="46" cy="63" r=".9"/><circle cx="41" cy="64" r=".8"/>
-                 <circle cx="74" cy="61" r=".9"/><circle cx="77" cy="63" r=".9"/><circle cx="79" cy="64" r=".8"/></g>`,
-    gorro:    `<path d="M36 40 Q36 18 60 18 Q84 18 84 40 Z" fill="#F4ACB7"/>
-               <rect x="34" y="36" width="52" height="7" rx="3" fill="#FFF1C1"/>`,
-    presilha: `<path d="M76 34 L84 40 L80 44 L72 38 Z" fill="#E2ECE9" stroke="#A8C4B5" stroke-width=".8"/>`,
-    brinco:   `<circle cx="36" cy="68" r="2.2" fill="#FFF1C1" stroke="#C9A35E" stroke-width=".6"/>
-               <circle cx="84" cy="68" r="2.2" fill="#FFF1C1" stroke="#C9A35E" stroke-width=".6"/>`,
-  }[p.extra] || '';
-
-  return `
-  <svg viewBox="0 0 120 120" aria-hidden="true">
-    ${roupa}${cabeloTras}${pescoco}${rosto}${cabeloFrente}
-    ${olhos}${detalhes}${extra}
-  </svg>`;
-}
-
-/* ---------- Filtros visuais da pizza assada / queimada (sem puxar para o verde!) ---------- */
+/* ---------- Filtros visuais da pizza assada / queimada ---------- */
 function getBakeFilter(t, burnt = false){
   if (burnt || t >= 0.80){
     const burnFactor = Math.min(1, (t - 0.80) / 0.20);
@@ -1703,7 +1865,6 @@ function getBakeFilter(t, burnt = false){
   }
   if (t <= 0) return 'none';
   const ratio = Math.min(1, t / 0.72);
-  // Realça cores quentes, contraste dourado e leve deslocamento para âmbar/caramelo (evitando esverdear)
   const saturate = (1 + ratio * 0.36).toFixed(2);
   const contrast = (1 + ratio * 0.16).toFixed(2);
   const brightness = (1 - ratio * 0.08).toFixed(2);
@@ -1778,6 +1939,151 @@ function applyBakeVisuals(container, t, burnt = false){
 }
 
 /* =========================================================
+   7. DADOS: ingredientes, abas e pedidos
+   ========================================================= */
+
+const TABS = [
+  { id:'bases',     label:'Bases & Queijos' },
+  { id:'classicos', label:'Clássicos' },
+  { id:'especiais', label:'Especiais da Casa' },
+  { id:'doces',     label:'Doces' },
+];
+
+const ITEMS = {
+  molho:        { name:'Molho de tomate',    tab:'bases',     layer:'base',      kind:'liquido', color:'#F2A596', sprite:'sauce' },
+  creme:        { name:'Creme branco',       tab:'bases',     layer:'base',      kind:'liquido', color:'#FFF9EF', sprite:'sauce' },
+  mussarela:    { name:'Mussarela ralada',   tab:'bases',     layer:'queijo',    kind:'solido',  color:'#FFFBF0', sprite:'cheeseShreds', scale:1.38, step:34 },
+  cream:        { name:'Cream cheese',       tab:'bases',     layer:'queijo',    kind:'solido',  color:'#FFF4E3', sprite:'creamDollop',  scale:1.30, step:36 },
+  ganache:      { name:'Ganache ao leite',   tab:'bases',     layer:'cobertura', kind:'solido',  color:'#8E583E', sprite:'drizzle',      scale:1.55, step:28 },
+
+  calabresa:    { name:'Calabresa',          tab:'classicos', layer:'cobertura', kind:'solido',  color:'#E58F7C', sprite:'slice',        scale:1.45, step:36 },
+  manjericao:   { name:'Manjericão',         tab:'classicos', layer:'cobertura', kind:'solido',  color:'#96CCA6', sprite:'leaf',         scale:1.40, step:34 },
+  tomatecereja: { name:'Tomate-cereja',      tab:'classicos', layer:'cobertura', kind:'solido',  color:'#EF7F7A', sprite:'cherry',       scale:1.40, step:34 },
+
+  batata:       { name:'Batata frita',       tab:'especiais', layer:'cobertura', kind:'solido',  color:'#F6CD6A', sprite:'stick',        scale:1.42, step:36 },
+  cheddar:      { name:'Cheddar cremoso',    tab:'especiais', layer:'queijo',    kind:'solido',  color:'#F5B649', sprite:'drip',         scale:1.35, step:36 },
+  bacon:        { name:'Bacon',              tab:'especiais', layer:'cobertura', kind:'solido',  color:'#EBA5A0', sprite:'bacon',        scale:1.42, step:36 },
+  salmao:       { name:'Salmão fresco',      tab:'especiais', layer:'cobertura', kind:'solido',  color:'#F7A58A', sprite:'cube',         scale:1.38, step:35 },
+  cebolinha:    { name:'Cebolinha',          tab:'especiais', layer:'cobertura', kind:'solido',  color:'#8BC498', sprite:'rod',          scale:1.38, step:32 },
+  gergelim:     { name:'Gergelim',           tab:'especiais', layer:'cobertura', kind:'solido',  color:'#FFF1D6', sprite:'seed',         scale:1.40, step:32 },
+  tare:         { name:'Molho tarê',         tab:'especiais', layer:'cobertura', kind:'solido',  color:'#6E4129', sprite:'drizzle',      scale:1.55, step:28 },
+
+  uva:          { name:'Uva verde',          tab:'doces',     layer:'cobertura', kind:'solido',  color:'#B7DB9C', sprite:'grape',        scale:1.38, step:34 },
+  morango:      { name:'Morango',            tab:'doces',     layer:'cobertura', kind:'solido',  color:'#F28B94', sprite:'berry',        scale:1.45, step:36 },
+};
+
+const F = (...ids) => ids.map(id => ({ id, at:'full' }));
+
+const RANDOM_CLIENTS = [
+  { nome:'Lucas',
+    look:{ skin:'#F1C7A5', hair:'#5A4032', style:'curta', shirt:'#A8D5B5', bg:'#E2ECE9', extra:'oculos' },
+    pedidos:[
+      { say:'E aí! Hoje quero uma calabresa com bastante mussarela, bem caprichada.', items:F('molho','mussarela','calabresa') },
+      { say:'Bora de clássica: molho, mussarela e manjericão fresquinho!', items:F('molho','mussarela','manjericao') },
+      { say:'Calabresa com tomate-cereja, pode ser?', items:F('molho','mussarela','calabresa','tomatecereja') },
+      { say:'Metade calabresa, metade manjericão, bem dividida!',
+        items:[ { id:'molho', at:'full' }, { id:'mussarela', at:'full' }, { id:'calabresa', at:'left' }, { id:'manjericao', at:'right' } ] },
+    ] },
+  { nome:'Bia',
+    look:{ skin:'#E8B894', hair:'#8A4B2E', style:'rabo', shirt:'#F4ACB7', bg:'#FDECE2', extra:'sardas' },
+    pedidos:[
+      { say:'Oi! Quero uma de batata frita com cheddar, pode ser?', items:F('batata','cheddar') },
+      { say:'Metade batata frita, metade calabresa, por favor! Uma por lado.',
+        items:[ { id:'batata', at:'left' }, { id:'cheddar', at:'left' }, { id:'calabresa', at:'right' }, { id:'mussarela', at:'right' } ] },
+      { say:'Batata frita com bacon e cheddar, sem economizar!', items:F('batata','cheddar','bacon') },
+      { say:'Quero uma de morango com creme, bem docinha!', items:F('creme','morango') },
+    ] },
+  { nome:'Gabriel',
+    look:{ skin:'#D9A77F', hair:'#2F2420', style:'cacheada', shirt:'#D8E2DC', bg:'#FFF1C1', extra:'gorro' },
+    pedidos:[
+      { say:'Quero uma pizza de tomate-cereja com manjericão, bem leve!', items:F('molho','tomatecereja','manjericao') },
+      { say:'Me vê uma de bacon com cebolinha? Bem fresquinha!', items:F('bacon','cebolinha') },
+      { say:'Metade bacon, metade tomate-cereja, obrigado!',
+        items:[ { id:'molho', at:'full' }, { id:'bacon', at:'left' }, { id:'tomatecereja', at:'right' } ] },
+    ] },
+  { nome:'Júlia',
+    look:{ skin:'#F6D3B6', hair:'#5B4336', style:'franja', shirt:'#D9CCE8', bg:'#FDECE2', extra:'presilha' },
+    pedidos:[
+      { say:'Hoje é dia de cream cheese com salmão, por favor!', items:F('cream','salmao','cebolinha') },
+      { say:'Quero metade doce e metade salgada! Morango de um lado e mussarela do outro.',
+        items:[ { id:'morango', at:'left' }, { id:'mussarela', at:'right' }, { id:'molho', at:'right' } ] },
+      { say:'Uma de morango com ganache, bem chocolatuda!', items:F('creme','morango','ganache') },
+    ] },
+  { nome:'Mateus',
+    look:{ skin:'#E0B088', hair:'#1F1A17', style:'curta', shirt:'#E2ECE9', bg:'#DCE8F2', extra:'sardas' },
+    pedidos:[
+      { say:'Fala! Calabresa com mussarela, sem frescura.', items:F('molho','mussarela','calabresa') },
+      { say:'Quero uma de batata frita com bacon. Sem economizar no bacon!', items:F('batata','bacon') },
+      { say:'Tarê com gergelim, bem caprichada!', items:F('cream','salmao','gergelim','tare') },
+    ] },
+  { nome:'Camila',
+    look:{ skin:'#F3CBA8', hair:'#B0744A', style:'ondulada', shirt:'#FFF1C1', bg:'#FFF1C1', extra:'brinco' },
+    pedidos:[
+      { say:'Pode ser a de bombom de uva? Creme branco, uva e ganache, por favor!', items:F('creme','uva','ganache') },
+      { say:'Metade doce, metade salgada: uva de um lado e manjericão do outro!',
+        items:[ { id:'creme', at:'left' }, { id:'uva', at:'left' }, { id:'manjericao', at:'right' }, { id:'molho', at:'right' } ] },
+      { say:'Manjericão com tomate-cereja e um pouquinho de uva, quero ousar!', items:F('molho','manjericao','tomatecereja','uva') },
+    ] },
+  { nome:'Rafael',
+    look:{ skin:'#C98E63', hair:'#241A14', style:'rabo', shirt:'#F4ACB7', bg:'#E2ECE9', extra:'oculos' },
+    pedidos:[
+      { say:'Me manda uma de tomate-cereja com manjericão. Bem simples!', items:F('molho','tomatecereja','manjericao') },
+      { say:'Quero uma com salmão e gergelim, sem medo!', items:F('cream','salmao','gergelim','tare') },
+      { say:'Calabresa e cebolinha, sem mussarela hoje!', items:F('molho','calabresa','cebolinha') },
+    ] },
+  { nome:'Larissa',
+    look:{ skin:'#F1C6A7', hair:'#6E4530', style:'coque', shirt:'#A8D5B5', bg:'#F9D3DC', extra:'sardas' },
+    pedidos:[
+      { say:'Oi, tudo bem? Quero uma de batata frita com cheddar, por favor!', items:F('batata','cheddar') },
+      { say:'Uma de morango com creme, bem docinha!', items:F('creme','morango') },
+      { say:'Metade morango, metade batata frita? Acho que combina!',
+        items:[ { id:'creme', at:'full' }, { id:'morango', at:'left' }, { id:'batata', at:'right' }, { id:'cheddar', at:'right' } ] },
+    ] },
+];
+
+const CLIENTES_VIP = {
+  arthur: {
+    nome:'Arthur',
+    pedidos:[
+      { say:'E aí, parceiro! Hoje é dia de calabresa com bastante mussarela, bora?', items:F('molho','mussarela','calabresa') },
+      { say:'Nada de sushi pra mim, hein! Quero uma de batata frita com cheddar e bacon.', items:F('batata','cheddar','bacon') },
+      { say:'Metade calabresa, metade batata frita. Hoje estou com fome de verdade!',
+        items:[ { id:'molho', at:'full' }, { id:'mussarela', at:'full' }, { id:'calabresa', at:'left' }, { id:'batata', at:'right' }, { id:'cheddar', at:'right' } ] },
+      { say:'Me vê uma de manjericão com tomate-cereja. Sem frescura, mas bem fresquinha!', items:F('molho','manjericao','tomatecereja') },
+    ],
+  },
+  leticia: {
+    nome:'Letícia',
+    pedidos:[
+      { say:'Oi, oi! Hoje eu quero a de Bombom de Uva, bem cremosa!', items:F('creme','uva','ganache') },
+      { say:'Me vê uma Pizza de Sushi? Com bastante tarê, por favor!', items:F('cream','salmao','cebolinha','gergelim','tare') },
+      { say:'Batata frita com cheddar e bacon, que dia lindo pra isso!', items:F('batata','cheddar','bacon') },
+      { say:'Metade morango com ganache, metade uva com creme. Quero ser criativa hoje!',
+        items:[ { id:'creme', at:'full' }, { id:'morango', at:'left' }, { id:'ganache', at:'left' }, { id:'uva', at:'right' } ] },
+    ],
+  },
+  dupla: {
+    nome:'Arthur & Letícia',
+    pedidos:[
+      { say:'Oi! Hoje viemos juntos — queremos uma pizza metade Batata Frita e metade Bombom de Uva!',
+        items:[ { id:'batata', at:'left' }, { id:'cheddar', at:'left' }, { id:'bacon', at:'left' },
+                { id:'creme', at:'right' }, { id:'uva', at:'right' }, { id:'ganache', at:'right' } ] },
+      { say:'A gente quer dividir uma de calabresa com manjericão. Metade pra cada um, combinado?',
+        items:[ { id:'molho', at:'full' }, { id:'mussarela', at:'full' }, { id:'calabresa', at:'left' }, { id:'manjericao', at:'right' } ] },
+      { say:'Hoje é dia de sushi pra ela e de calabresa pra ele. Metade cada, pode?',
+        items:[ { id:'cream', at:'right' }, { id:'salmao', at:'right' }, { id:'gergelim', at:'right' }, { id:'tare', at:'right' },
+                { id:'molho', at:'left' }, { id:'calabresa', at:'left' }, { id:'mussarela', at:'left' } ] },
+      { say:'Pizza de morango com ganache pra nós dois! Só uma metade do chocolate, vai?',
+        items:[ { id:'morango', at:'full' }, { id:'ganache', at:'left' } ] },
+      { say:'Uma inteira de tomate-cereja com manjericão, pra dividir sem brigar!',
+        items:[ { id:'molho', at:'full' }, { id:'tomatecereja', at:'full' }, { id:'manjericao', at:'full' } ] },
+      { say:'Batata frita inteira com cheddar e bacon, a gente divide na mordida!',
+        items:[ { id:'batata', at:'full' }, { id:'cheddar', at:'full' }, { id:'bacon', at:'full' } ] },
+    ],
+  },
+};
+
+/* =========================================================
    8. ESTADO
    ========================================================= */
 
@@ -1804,6 +2110,7 @@ const state = {
   busy: false,
   lastPickKey: null,
   carry: null,
+  mood: 'neutral',
 };
 
 let bakeRAF = null;
@@ -1819,13 +2126,14 @@ function badgeText(ats){
 }
 
 /* =========================================================
-   9. GEOMETRIA E POSICIONAMENTO ORGANIZADO DA PIZZA
+   9. GEOMETRIA E POSICIONAMENTO DA PIZZA
    ========================================================= */
 
 const RADIUS = 136;
 const CENTER = 200;
 
 const $ = id => document.getElementById(id);
+const $app     = $('app');
 const $board   = $('board');
 const $svg     = $('pizzaSvg');
 const $pots    = $('pots');
@@ -1837,12 +2145,12 @@ const $say     = $('say');
 const $items   = $('items');
 const $ticket  = $('ticket');
 const $comanda = $('comanda');
+const $comandaFeedback = $('comandaFeedback');
+const $fbTitle = $('fbTitle');
+const $fbSub   = $('fbSub');
 const $toast   = $('toast');
 const $modo    = $('modo');
 const $hint    = $('hint');
-const $feedback= $('feedback');
-const $fbTitle = $('feedbackTitle');
-const $fbSub   = $('feedbackSub');
 const $confetti= $('confetti');
 const $stageBuild = $('stageBuild');
 const $stageOven  = $('stageOven');
@@ -1876,6 +2184,13 @@ const $closeBtn  = $('closeBtn');
 const $readyActions = $('readyActions');
 const $backDeliver  = $('backDeliver');
 const $floating  = $('floatingPizza');
+const $vipModal  = $('vipReactionModal');
+const $vipCard   = $('vipCard');
+const $vipStage  = $('vipStage');
+const $vipStamp  = $('vipStamp');
+const $vipSpeech = $('vipSpeech');
+const $vipDetail = $('vipDetail');
+const $vipContinue = $('vipContinue');
 
 function toSvgPoint(clientX, clientY){
   const pt = $svg.createSVGPoint();
@@ -1964,23 +2279,45 @@ function renderHint(){
 function avatarHTML(v){
   const sA = SKINS.arthur[state.skins.arthur];
   const sL = SKINS.leticia[state.skins.leticia];
+  const m = state.mood;
 
   if (v.tipo === 'random'){
-    return `<div class="avatar" id="avatarMain" style="background:${v.look.bg}">${portrait(v.look)}</div>`;
+    return `<div class="avatar" id="avatarMain" style="background:${v.look.bg}">${portrait(v.look, m)}</div>`;
   }
   if (v.tipo === 'arthur'){
-    return `<div class="avatar" id="avatarMain" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA)}</div>`;
+    return `<div class="avatar" id="avatarMain" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA, m)}</div>`;
   }
   if (v.tipo === 'leticia'){
-    return `<div class="avatar" id="avatarMain" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL)}</div>`;
+    return `<div class="avatar" id="avatarMain" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL, m)}</div>`;
   }
   return `
     <div class="duo">
-      <div class="avatar" id="avatarMain" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA)}</div>
+      <div class="avatar" id="avatarArthur" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA, m)}</div>
       ${SPARKLES_HTML}
-      <div class="avatar" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL)}</div>
+      <div class="avatar" id="avatarLeticia" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL, m)}</div>
     </div>`;
 }
+
+const SPARKLES_HTML = `
+  <div class="sparkles" aria-hidden="true">
+    <svg viewBox="-10 -10 20 20" class="heart"><path d="M0 6C-8 0-6-6 0-3C6-6 8 0 0 6Z" fill="#F4ACB7"/></svg>
+    <svg viewBox="-10 -10 20 20"><path d="M0-9L2-2L9 0L2 2L0 9L-2 2L-9 0L-2-2Z" fill="#FFF1C1" stroke="#E6D29B" stroke-width=".6"/></svg>
+    <svg viewBox="-10 -10 20 20"><path d="M0-9L2-2L9 0L2 2L0 9L-2 2L-9 0L-2-2Z" fill="#D8E2DC" stroke="#A8C4B5" stroke-width=".6"/></svg>
+  </div>`;
+
+const MOOD = {
+  happy: `<svg class="mood" viewBox="-12 -12 24 24" aria-hidden="true">
+            <circle r="11" fill="#FFF1C1" stroke="#E6D29B" stroke-width="1"/>
+            <path d="M-5 -1 Q-3.5 -4 -2 -1 M2 -1 Q3.5 -4 5 -1" stroke="#4A3B32" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+            <path d="M-5 3 Q0 8 5 3" stroke="#4A3B32" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          </svg>`,
+  sad: `<svg class="mood" viewBox="-12 -12 24 24" aria-hidden="true">
+          <circle r="11" fill="#F5B5A8" stroke="#D9826F" stroke-width="1"/>
+          <path d="M-5 -1 H-2 M2 -1 H5" stroke="#4A3B32" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M-4 6 Q0 2 4 6" stroke="#4A3B32" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+          <path d="M9 -8 Q11 -4 9 -2 Q7 -4 9 -8Z" fill="#8FC6E8"/>
+        </svg>`,
+};
 
 function renderSkins(){
   const v = state.visita;
@@ -2030,6 +2367,7 @@ function renderOrder(){
 
 function renderStages(){
   const build = state.stage === 'build';
+  $app.classList.toggle('in-oven', !build);
   $stageBuild.classList.toggle('off-left', !build);
   $stageBuild.classList.toggle('off-right', false);
   $stageOven.classList.toggle('off-right', build);
@@ -2070,13 +2408,13 @@ function pickPedido(lista){
 
 function pickVisit(){
   const roll = Math.random();
-  if (roll < 0.10){
+  if (roll < 0.22){
     return { tipo:'arthur', nome:CLIENTES_VIP.arthur.nome, pedido:pickPedido(CLIENTES_VIP.arthur.pedidos) };
   }
-  if (roll < 0.20){
+  if (roll < 0.44){
     return { tipo:'leticia', nome:CLIENTES_VIP.leticia.nome, pedido:pickPedido(CLIENTES_VIP.leticia.pedidos) };
   }
-  if (roll < 0.30){
+  if (roll < 0.70){
     return { tipo:'dupla', nome:CLIENTES_VIP.dupla.nome, pedido:pickPedido(CLIENTES_VIP.dupla.pedidos) };
   }
   const c = pick(RANDOM_CLIENTS);
@@ -2125,13 +2463,23 @@ function resetPizzaFlags(){
   if ($ovenBar) $ovenBar.style.width = '0%';
 }
 
+function clearComandaFeedback(){
+  $comandaFeedback.classList.remove('show','ok','bad');
+  $fbTitle.textContent = '';
+  $fbSub.textContent = '';
+}
+
 function novaVisita(animated = false){
   state.visita = pickVisit();
   state.visitas++;
   state.skins = { arthur:'casual', leticia:'casual' };
+  state.mood = 'neutral';
   state.board.clear();
   resetPizzaFlags();
   state.stage = 'build';
+  clearComandaFeedback();
+  $comanda.classList.remove('ok','bad');
+  $say.classList.remove('happy','sad');
   renderAll();
   if (animated){
     $comanda.classList.remove('enter'); void $comanda.offsetWidth; $comanda.classList.add('enter');
@@ -2145,7 +2493,7 @@ function selectItem(id){
   renderHint();
 }
 
-/* ---------- Posicionamento Organizado e Proporcional na Bancada ---------- */
+/* ---------- Posicionamento organizado na bancada ---------- */
 
 function snapToNeatRing(p, at){
   const dx = p.x - CENTER;
@@ -2308,7 +2656,7 @@ function clearBoard(){
 }
 
 /* =========================================================
-   12. ETAPA 2: BANDEJA, FORNO (CONTÍNUO) E CAIXA
+   12. ETAPA 2: BANDEJA, FORNO E CAIXA
    ========================================================= */
 
 function goOven(){
@@ -2318,7 +2666,6 @@ function goOven(){
   state.stage = 'oven';
   state.activeItem = null;
   state.busy = false;
-  // Renderiza a pizza na bandeja apenas uma vez ao entrar, sem animação .pop para nunca piscar
   $trayPizza.innerHTML = `<svg viewBox="0 0 400 400" aria-hidden="true">${pizzaInnerSVG(false)}</svg>`;
   renderAll();
   renderOvenUI();
@@ -2612,7 +2959,7 @@ document.addEventListener('pointerup', onUp);
 document.addEventListener('pointercancel', onUp);
 
 /* =========================================================
-   13. ETAPA 3: VALIDAÇÃO E ENTREGA
+   13. ETAPA 3: VALIDAÇÃO, REAÇÃO E ENTREGA
    ========================================================= */
 
 function validate(){
@@ -2659,14 +3006,11 @@ const FALAS_ACERTO = [
   'Chegou quentinha, obrigado! ♡',
 ];
 
-function showFeedback(ok, sub, titleOverride){
-  $feedback.classList.remove('ok','bad');
-  $feedback.classList.add(ok ? 'ok' : 'bad');
-  $fbTitle.textContent = titleOverride || (ok ? 'Perfeita! ♡' : 'Quase lá...');
+function showComandaFeedback(ok, title, sub){
+  $comandaFeedback.classList.remove('ok','bad');
+  $comandaFeedback.classList.add('show', ok ? 'ok' : 'bad');
+  $fbTitle.textContent = title;
   $fbSub.textContent = sub;
-  $feedback.classList.add('show');
-  clearTimeout(showFeedback._t);
-  showFeedback._t = setTimeout(() => $feedback.classList.remove('show'), 2000);
 }
 
 function spawnConfetti(){
@@ -2682,14 +3026,130 @@ function spawnConfetti(){
   }
 }
 
-function setMood(kind){
-  const av = $('avatarMain');
-  if (!av) return;
-  av.querySelectorAll('.mood').forEach(m => m.remove());
-  av.insertAdjacentHTML('beforeend', MOOD[kind]);
+function applyMoodToAvatars(mood){
+  state.mood = mood;
+  const v = state.visita;
+  const sA = SKINS.arthur[state.skins.arthur];
+  const sL = SKINS.leticia[state.skins.leticia];
+
+  const rebuild = (id, bg, svgHtml) => {
+    const el = $(id);
+    if (!el) return;
+    el.style.background = bg;
+    el.innerHTML = svgHtml + (mood === 'happy' || mood === 'sad' ? moodFx(mood) : '') + (mood === 'neutral' ? '' : MOOD[mood]);
+  };
+
+  if (v.tipo === 'random'){
+    rebuild('avatarMain', v.look.bg, portrait(v.look, mood));
+    return;
+  }
+  if (v.tipo === 'arthur'){
+    rebuild('avatarMain', sA.bg, drawArthur(ARTHUR_CFG, sA, mood));
+    return;
+  }
+  if (v.tipo === 'leticia'){
+    rebuild('avatarMain', sL.bg, drawLeticia(LETICIA_CFG, sL, mood));
+    return;
+  }
+  rebuild('avatarArthur', sA.bg, drawArthur(ARTHUR_CFG, sA, mood));
+  rebuild('avatarLeticia', sL.bg, drawLeticia(LETICIA_CFG, sL, mood));
 }
 
-function deliverPizza(){
+/* =========================================================
+   14. MODAL DE REAÇÃO VIP
+   Aparece logo após a entrega para Arthur, Letícia ou dupla.
+   Fecha ao clicar em "Continuar" ou automaticamente em 4s.
+   ========================================================= */
+
+let vipTimer = null;
+let vipResolve = null;
+
+function buildVipStageHTML(tipo, mood){
+  const sA = SKINS.arthur[state.skins.arthur];
+  const sL = SKINS.leticia[state.skins.leticia];
+  const fx = mood === 'neutral' ? '' : moodFx(mood);
+  const badge = mood === 'neutral' ? '' : MOOD[mood];
+
+  if (tipo === 'arthur'){
+    return `<div class="vip-avatar" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA, mood)}${fx}${badge}</div>`;
+  }
+  if (tipo === 'leticia'){
+    return `<div class="vip-avatar" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL, mood)}${fx}${badge}</div>`;
+  }
+  return `
+    <div class="vip-avatar duo-item" style="background:${sA.bg}">${drawArthur(ARTHUR_CFG, sA, mood)}${fx}</div>
+    <div class="vip-sparkles" aria-hidden="true">
+      <svg viewBox="-10 -10 20 20" class="heart"><path d="M0 6C-8 0-6-6 0-3C6-6 8 0 0 6Z" fill="#F4ACB7"/></svg>
+      <svg viewBox="-10 -10 20 20"><path d="M0-9L2-2L9 0L2 2L0 9L-2 2L-9 0L-2-2Z" fill="#FFF1C1" stroke="#E6D29B" stroke-width=".6"/></svg>
+      <svg viewBox="-10 -10 20 20"><path d="M0-9L2-2L9 0L2 2L0 9L-2 2L-9 0L-2-2Z" fill="#D8E2DC" stroke="#A8C4B5" stroke-width=".6"/></svg>
+    </div>
+    <div class="vip-avatar duo-item" style="background:${sL.bg}">${drawLeticia(LETICIA_CFG, sL, mood)}${fx}${badge}</div>`;
+}
+
+/* Abre o modal com a reação. Retorna uma Promise que resolve quando fecha. */
+function showVipReaction({ tipo, ok, burnt, speech, title, detail }){
+  return new Promise(resolve => {
+    vipResolve = resolve;
+    const mood = ok ? 'happy' : 'sad';
+
+    $vipStage.innerHTML = buildVipStageHTML(tipo, mood);
+
+    $vipStamp.textContent = title;
+    $vipStamp.className = 'vip-stamp ' + (ok ? 'ok' : 'bad');
+
+    $vipSpeech.textContent = speech;
+    $vipSpeech.className = 'vip-speech ' + (ok ? 'ok' : 'bad');
+
+    $vipDetail.textContent = detail || '';
+
+    $vipModal.classList.remove('leaving');
+    $vipModal.classList.add('show');
+
+    clearTimeout(vipTimer);
+    vipTimer = setTimeout(closeVipReaction, 4000);
+  });
+}
+
+function closeVipReaction(){
+  if (!$vipModal.classList.contains('show')) return;
+  clearTimeout(vipTimer);
+  vipTimer = null;
+  $vipModal.classList.add('leaving');
+  setTimeout(() => {
+    $vipModal.classList.remove('show','leaving');
+    if (vipResolve){
+      const r = vipResolve;
+      vipResolve = null;
+      r();
+    }
+  }, 350);
+}
+
+$vipContinue.addEventListener('click', closeVipReaction);
+$vipModal.addEventListener('click', e => {
+  if (e.target === $vipModal) closeVipReaction();
+});
+
+/* =========================================================
+   15. ENTREGA (com modal VIP quando aplicável)
+   ========================================================= */
+
+function isVip(tipo){
+  return tipo === 'arthur' || tipo === 'leticia' || tipo === 'dupla';
+}
+
+function finishDelivery(nome){
+  $comanda.classList.remove('ok','bad');
+  $say.classList.remove('happy','sad');
+  $comanda.classList.add('leave');
+  setTimeout(() => {
+    $comanda.classList.remove('leave');
+    novaVisita(true);
+    toast(`Pizza entregue para ${nome}! ♡`);
+  }, 600);
+}
+
+async function deliverPizza(){
   if (state.busy) return;
   if (!state.baked && !state.burnt){
     return toast('A pizza precisa estar assada antes de entregar!');
@@ -2701,60 +3161,75 @@ function deliverPizza(){
 
   const result = validate();
   const nome = state.visita.nome;
+  const tipo = state.visita.tipo;
+  const vip = isVip(tipo);
+
+  let ok = false;
+  let speech = '';
+  let title = '';
+  let detail = '';
+  let burnt = false;
 
   if (result.ok){
+    ok = true;
+    speech = pick(FALAS_ACERTO);
+    title = 'Perfeita! ♡';
+    detail = `${nome} ficou feliz com a pizza!`;
+    applyMoodToAvatars('happy');
     $comanda.classList.add('ok');
     $comanda.classList.remove('bad');
     document.querySelectorAll('#items li').forEach(li => li.classList.add('done'));
     $say.classList.add('happy');
-    $say.textContent = pick(FALAS_ACERTO);
-    setMood('happy');
+    $say.textContent = speech;
     spawnConfetti();
-    showFeedback(true, `${nome} ficou feliz com a pizza!`);
   } else if (result.burnt){
+    burnt = true;
+    speech = pick(FALAS_QUEIMADA);
+    title = 'Ops, queimou!';
+    detail = 'A pizza passou do ponto no forno.';
+    applyMoodToAvatars('sad');
     $comanda.classList.add('bad');
     $comanda.classList.remove('ok');
     $comanda.classList.add('shake');
     setTimeout(() => $comanda.classList.remove('shake'), 500);
     $say.classList.add('sad');
-    $say.textContent = pick(FALAS_QUEIMADA);
-    setMood('sad');
-    showFeedback(false, 'A pizza queimou no forno!', 'Ops, queimou!');
+    $say.textContent = speech;
   } else {
-    $comanda.classList.add('bad');
-    $comanda.classList.remove('ok');
-    $comanda.classList.add('shake');
-    setTimeout(() => $comanda.classList.remove('shake'), 500);
-    $say.classList.add('sad');
-    $say.textContent = pick(FALAS_ERRO);
-    setMood('sad');
-
+    speech = pick(FALAS_ERRO);
+    title = 'Quase lá...';
     const partes = [];
     result.faltando.forEach(e => partes.push(`faltou ${nameOf(e.id)} (${areaLabel(e.at)})`));
     result.sobrando.forEach(e => partes.push(`${nameOf(e.id)} (${areaLabel(e.at)}) não estava no pedido`));
+    detail = partes.slice(0, 2).join(' · ') || 'Algo não bateu com o pedido.';
+    applyMoodToAvatars('sad');
+    $comanda.classList.add('bad');
+    $comanda.classList.remove('ok');
+    $comanda.classList.add('shake');
+    setTimeout(() => $comanda.classList.remove('shake'), 500);
+    $say.classList.add('sad');
+    $say.textContent = speech;
     document.querySelectorAll('#items li').forEach((li, idx) => {
       const item = state.visita.pedido.items[idx];
       if (item && !state.board.has(keyOf(item.id, item.at)) && !state.board.has(keyOf(item.id, 'full'))){
         li.classList.add('wrong');
       }
     });
-    showFeedback(false, partes.slice(0, 2).join(' · ') || 'Algo não bateu com o pedido.');
   }
 
-  setTimeout(() => {
-    $comanda.classList.remove('ok','bad');
-    $say.classList.remove('happy','sad');
-    $comanda.classList.add('leave');
-    setTimeout(() => {
-      $comanda.classList.remove('leave');
-      novaVisita(true);
-      toast(`Pizza entregue para ${nome}! ♡`);
-    }, 600);
-  }, 2200);
+  if (vip){
+    /* Para VIPs: o modal central é a reação principal; a comanda só registra o resultado. */
+    await showVipReaction({ tipo, ok, burnt, speech, title, detail });
+    finishDelivery(nome);
+  } else {
+    /* Para clientes aleatórios: mantém o feedback atual apenas na comanda. */
+    showComandaFeedback(ok, title, detail);
+    setTimeout(() => finishDelivery(nome), 2600);
+  }
+  state.busy = false;
 }
 
 /* =========================================================
-   14. TELA CHEIA E ROTAÇÃO (Android)
+   16. TELA CHEIA E ROTAÇÃO (Android)
    ========================================================= */
 
 async function enterFullscreenAndLandscape(){
@@ -2773,7 +3248,7 @@ async function enterFullscreenAndLandscape(){
 }
 
 /* =========================================================
-   15. TELA INICIAL E TOAST
+   17. TELA INICIAL E TOAST
    ========================================================= */
 
 let toastTimer;
@@ -2806,7 +3281,7 @@ function startGame(){
 }
 
 /* =========================================================
-   16. EVENTOS
+   18. EVENTOS
    ========================================================= */
 
 $pots.addEventListener('click', e => {

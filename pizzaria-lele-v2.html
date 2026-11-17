@@ -2991,6 +2991,9 @@ function placeSolidAt(p){
     if (dx*dx + dy*dy < minStep*minStep) return;
   }
 
+  const prevDone = snapshotDoneSet();
+  const isFirstInStroke = !state.lastPoint;
+
   if (!state.board.has(k)){
     state.board.set(k, { id, at, pieces:[] });
   }
@@ -3038,12 +3041,30 @@ function placeSolidAt(p){
 
   appendPieceToBench(piece.html);
   state.lastPoint = { x, y };
-  refreshSidebar();
+
+  SFX.topping();
+  if (isFirstInStroke) JUICE.shake($('table'), 'table-pop');
+  const sc = fromSvgPoint(x, y);
+  if (sc){
+    JUICE.burst(sc.x, sc.y, {
+      count: 6,
+      colors: [it.color, '#FFF1C1', '#F4ACB7'],
+      glyphs: ['dot', '✦', 'dot', '•'],
+      distMin: 12,
+      distMax: 42,
+      sizeMin: 9,
+      sizeMax: 14,
+      dur: 420,
+    });
+  }
+
+  refreshSidebar(prevDone);
 }
 
 function paintLiquidAt(p){
   const id = state.activeItem;
   const at = state.at;
+  const prevDone = snapshotDoneSet();
 
   for (const [k, e] of [...state.board.entries()]){
     if (ITEMS[e.id].layer === 'base' &&
@@ -3056,7 +3077,24 @@ function paintLiquidAt(p){
     state.board.set(k, { id, at, pieces:[] });
   }
   renderTable();
-  refreshSidebar();
+
+  SFX.sauce();
+  JUICE.shake($('table'), 'table-pop');
+  JUICE.shake($app, 'shake-light');
+  const sc = fromSvgPoint(p ? p.x : CENTER, p ? p.y : CENTER);
+  if (sc){
+    JUICE.burst(sc.x, sc.y, {
+      count: 14,
+      colors: [ITEMS[id].color, '#FFF1C1', '#F4ACB7'],
+      glyphs: ['dot', '✦', 'dot', '♡'],
+      distMin: 24,
+      distMax: 84,
+      ringColor: ITEMS[id].color,
+      ringSize: 130,
+    });
+  }
+
+  refreshSidebar(prevDone);
 }
 
 let activePointerId = null;
@@ -3099,6 +3137,21 @@ $board.addEventListener('pointerleave', endDrag);
 
 function clearBoard(){
   if (state.stage !== 'build') return;
+  if (state.board.size){
+    SFX.clear();
+    JUICE.shake($('table'), 'shake-light');
+    JUICE.burstAtEl($('table'), {
+      count: 14,
+      colors: ['#FFF1C1', '#EED9C4', '#F4ACB7'],
+      glyphs: ['✦', '•', '✧'],
+      distMin: 30,
+      distMax: 95,
+      ringColor: '#E3C5A8',
+      ringSize: 170,
+    });
+  } else {
+    SFX.tap(360);
+  }
   state.board.clear();
   renderTable();
   refreshSidebar();
@@ -3110,8 +3163,12 @@ function clearBoard(){
 
 function goOven(){
   if (!state.board.size){
+    SFX.fail();
+    JUICE.shake($('table'), 'shake-light');
     return toast('Monte a pizza antes de ir para o forno!');
   }
+  SFX.stage(true);
+  JUICE.burstAtEl($goOven, { count: 10, ringColor: '#F4ACB7', ringSize: 70 });
   state.stage = 'oven';
   state.activeItem = null;
   state.busy = false;
@@ -3123,14 +3180,19 @@ function goOven(){
 function backToBuild(){
   if (state.stage !== 'oven' || state.carry || state.busy || state.baking) return;
   if (state.inOven || state.baked || state.burnt){
+    SFX.tap(320);
+    JUICE.shake($ovenScene, 'shake-light');
     return toast('A pizza já está no forno! Termine ou jogue fora para refazer.');
   }
+  SFX.stage(false);
   state.stage = 'build';
   renderAll();
 }
 
 function discardAndRemake(){
   if (state.busy || state.baking) return;
+  SFX.clear();
+  JUICE.shake($app, 'shake-light');
   state.board.clear();
   resetPizzaFlags();
   state.stage = 'build';
@@ -3182,7 +3244,7 @@ function renderOvenUI(){
   if (!state.doorOpen && !state.inOven && !state.baked && !state.burnt){
     $ovenStatus.textContent = 'Toque na porta ou no botão para abrir o forno.';
   } else if (state.doorOpen && !state.inOven && !state.baked && !state.burnt){
-    $ovenStatus.textContent = 'Arraste a pizza da bandeja para dentro do forno.';
+    $ovenStatus.textContent = 'Arraste ou toque na pizza da bandeja para colocar no forno.';
   } else if (state.baking){
     if (state.bakeProgress < 0.55){
       $ovenStatus.textContent = 'Assando… espere o ponteiro chegar na zona verde!';
@@ -3196,7 +3258,7 @@ function renderOvenUI(){
   } else if (state.burnt && !state.boxed){
     $ovenStatus.textContent = 'Ops, queimou! Jogue fora para refazer ou encaixote assim mesmo.';
   } else if (state.baked && !state.boxed){
-    $ovenStatus.textContent = 'Assada no ponto perfeito! ♡ Arraste a pizza para a caixa.';
+    $ovenStatus.textContent = 'Assada no ponto perfeito! ♡ Arraste ou toque na pizza para encaixotar.';
   } else if (state.boxed && !state.boxClosed){
     $ovenStatus.textContent = 'Pizza na caixinha! Clique na caixa ou no botão para fechar.';
   } else if (state.boxClosed){
@@ -3211,6 +3273,14 @@ function openDoor(){
   }
   if (state.doorOpen || state.busy) return;
   state.doorOpen = true;
+  SFX.door(true);
+  JUICE.shake($ovenScene, 'shake-light');
+  JUICE.burstAtEl($ovenDoor, {
+    count: 8,
+    colors: ['#FFF1C1', '#F5B5A8', '#F4ACB7'],
+    glyphs: ['✦', '•'],
+    distMax: 48,
+  });
   renderOvenUI();
 }
 
@@ -3230,26 +3300,55 @@ function putInBox(){
   applyBakeVisuals($boxPizza, state.bakeProgress, state.burnt);
   $boxPizza.classList.add('inside');
   $boxDrop.classList.remove('active');
+
+  SFX.boxDrop();
+  JUICE.shake($boxScene, 'box-squash');
+  JUICE.burstAtEl($boxScene, {
+    count: 12,
+    colors: ['#F6CD6A', '#F4ACB7', '#FFF1C1'],
+    glyphs: ['✦', '♡', 'dot'],
+    ringColor: '#E5C48E',
+    ringSize: 100,
+  });
+
   renderOvenUI();
 }
 
 function closeBox(){
   if (!state.boxed || state.boxClosed || state.busy) return;
   state.boxClosed = true;
+  SFX.boxClose();
+  JUICE.shake($boxScene, 'box-squash');
+  JUICE.shake($app, 'shake-light');
+  JUICE.burstAtEl($boxScene, {
+    count: 16,
+    colors: ['#F4ACB7', '#FFF1C1', '#A8D5B5'],
+    glyphs: ['♡', '✦', '✧'],
+    distMin: 24,
+    distMax: 85,
+    ringColor: '#F4ACB7',
+    ringSize: 125,
+  });
   renderOvenUI();
 }
 
-/* ---------- Pizza flutuante (arraste) ---------- */
+/* ---------- Pizza flutuante (arraste + toque rápido mobile) ---------- */
 
 let carryPointerId = null;
+let carryStartPos = null;
+let carryLastTrail = null;
 
 function startCarry(kind, e){
   if (state.busy || state.carry || state.baking || state.undercooked) return;
   if (kind === 'oven' && (!state.doorOpen || state.inOven || !state.board.size)) return;
   if (kind === 'box' && ((!state.baked && !state.burnt) || state.boxed)) return;
 
+  SFX.tap(480);
   state.carry = kind;
   carryPointerId = e.pointerId;
+  carryStartPos = { x: e.clientX, y: e.clientY };
+  carryLastTrail = { x: e.clientX, y: e.clientY };
+
   $floating.innerHTML = `<svg viewBox="0 0 400 400">${pizzaInnerSVG(false)}</svg>`;
   if (kind === 'box'){
     applyBakeVisuals($floating, state.bakeProgress, state.burnt);
@@ -3283,23 +3382,41 @@ function isOver(el, x, y){
 function onMove(e){
   if (!state.carry || e.pointerId !== carryPointerId) return;
   moveFloating(e.clientX, e.clientY);
+  if (carryLastTrail && Math.hypot(e.clientX - carryLastTrail.x, e.clientY - carryLastTrail.y) > 42){
+    carryLastTrail = { x: e.clientX, y: e.clientY };
+    JUICE.burst(e.clientX, e.clientY, {
+      count: 3,
+      colors: ['#FFF1C1', '#F4ACB7', '#EED9C4'],
+      glyphs: ['✦', '•'],
+      distMin: 6,
+      distMax: 22,
+      sizeMin: 8,
+      sizeMax: 12,
+      dur: 340,
+    });
+  }
 }
 
 function onUp(e){
   if (!state.carry || e.pointerId !== carryPointerId) return;
   const kind = state.carry;
+  const movedDist = carryStartPos ? Math.hypot(e.clientX - carryStartPos.x, e.clientY - carryStartPos.y) : 999;
+  const wasQuickTap = movedDist < 12;
+
   state.carry = null;
   carryPointerId = null;
+  carryStartPos = null;
+  carryLastTrail = null;
   $ovenDrop.classList.remove('active');
   $boxDrop.classList.remove('active');
   $floating.style.display = 'none';
   $ovenPizza.style.opacity = '';
 
   if (kind === 'oven'){
-    const target = isOver($ovenDrop, e.clientX, e.clientY) || isOver($ovenScene, e.clientX, e.clientY);
+    const target = wasQuickTap || isOver($ovenDrop, e.clientX, e.clientY) || isOver($ovenScene, e.clientX, e.clientY);
     if (target) putIntoOven();
   } else {
-    const target = isOver($boxDrop, e.clientX, e.clientY) || isOver($boxScene, e.clientX, e.clientY);
+    const target = wasQuickTap || isOver($boxDrop, e.clientX, e.clientY) || isOver($boxScene, e.clientX, e.clientY);
     if (target) putInBox();
   }
   renderOvenUI();
@@ -3318,6 +3435,8 @@ function startBakeLoop(){
 
   const totalDuration = 6200;
   bakeLastTime = performance.now();
+  let dingedPerfect = state.bakeProgress >= 0.55;
+  let nextTickAt = Math.floor(state.bakeProgress * 10) + 1;
 
   const tick = now => {
     if (!state.baking) return;
@@ -3327,9 +3446,38 @@ function startBakeLoop(){
     state.bakeProgress = Math.min(1, state.bakeProgress + dt / totalDuration);
     $ovenBar.style.width = (state.bakeProgress * 100).toFixed(1) + '%';
 
+    if (state.bakeProgress * 10 >= nextTickAt && state.bakeProgress < 0.80){
+      nextTickAt++;
+      SFX.bakeTick(state.bakeProgress);
+    }
+
+    if (state.bakeProgress >= 0.55 && !dingedPerfect){
+      dingedPerfect = true;
+      SFX.bakePerfect();
+      JUICE.shake($ovenScene, 'table-pop');
+      JUICE.burstAtEl($ovenScene, {
+        count: 16,
+        colors: ['#A8D5B5', '#F6CD6A', '#F4ACB7', '#FFF1C1'],
+        glyphs: ['♡', '✦', '✧'],
+        distMin: 28,
+        distMax: 95,
+        ringColor: '#A8D5B5',
+        ringSize: 135,
+      });
+    }
+
     if (state.bakeProgress >= 0.80 && !state.burnt){
       state.burnt = true;
       $ovenSmoke.classList.add('on');
+      SFX.bakeBurn();
+      JUICE.shake($app, 'shake-medium');
+      JUICE.burstAtEl($ovenScene, {
+        count: 14,
+        colors: ['#7A6559', '#4A3B32', '#C97B6E'],
+        glyphs: ['dot', '•'],
+        distMin: 20,
+        distMax: 80,
+      });
     }
 
     applyBakeVisuals($ovenPizza, state.bakeProgress, state.burnt);
@@ -3364,6 +3512,15 @@ function putIntoOven(){
   $ovenPizza.innerHTML = `<svg viewBox="0 0 400 400" aria-hidden="true">${pizzaInnerSVG(false)}</svg>`;
   applyBakeVisuals($ovenPizza, 0, false);
   $ovenBar.style.width = '0%';
+  SFX.bakeStart();
+  JUICE.shake($ovenScene, 'shake-light');
+  JUICE.burstAtEl($ovenScene, {
+    count: 12,
+    colors: ['#F6CD6A', '#F5B649', '#FFF1C1'],
+    glyphs: ['✦', '•', '♡'],
+    ringColor: '#F6CD6A',
+    ringSize: 110,
+  });
   startBakeLoop();
 }
 
@@ -3374,25 +3531,39 @@ function takeOutOfOven(){
   state.doorOpen = true;
   setDoorClosed(false);
   $ovenGlow.classList.remove('on');
+  SFX.door(true);
 
   if (state.bakeProgress < 0.55){
     state.undercooked = true;
     state.baked = false;
     state.burnt = false;
+    JUICE.shake($ovenScene, 'shake-light');
   } else if (state.bakeProgress < 0.80){
     state.undercooked = false;
     state.baked = true;
     state.burnt = false;
+    SFX.itemDone();
+    JUICE.burstAtEl($ovenScene, {
+      count: 14,
+      colors: ['#A8D5B5', '#FFF1C1', '#F4ACB7'],
+      glyphs: ['♡', '✦', '✧'],
+      ringColor: '#A8D5B5',
+      ringSize: 120,
+    });
   } else {
     state.undercooked = false;
     state.baked = false;
     state.burnt = true;
+    SFX.fail();
+    JUICE.shake($ovenScene, 'shake-medium');
   }
   renderOvenUI();
 }
 
 function resumeBaking(){
   if (!state.undercooked || state.baking) return;
+  SFX.bakeStart();
+  JUICE.shake($ovenScene, 'shake-light');
   startBakeLoop();
 }
 
@@ -3561,6 +3732,7 @@ function showVipReaction({ tipo, ok, burnt, speech, title, detail }){
 
 function closeVipReaction(){
   if (!$vipModal.classList.contains('show')) return;
+  SFX.tap(580);
   clearTimeout(vipTimer);
   vipTimer = null;
   $vipModal.classList.add('leaving');
@@ -3601,9 +3773,11 @@ function finishDelivery(nome){
 async function deliverPizza(){
   if (state.busy) return;
   if (!state.baked && !state.burnt){
+    SFX.tap(320);
     return toast('A pizza precisa estar assada antes de entregar!');
   }
   if (!state.boxClosed){
+    SFX.tap(320);
     return toast('Coloque a pizza na caixa e feche a tampa primeiro!');
   }
   state.busy = true;
@@ -3630,6 +3804,17 @@ async function deliverPizza(){
     document.querySelectorAll('#items li').forEach(li => li.classList.add('done'));
     $say.classList.add('happy');
     $say.textContent = speech;
+    SFX.win(vip);
+    JUICE.shake($app, 'shake-joy');
+    JUICE.burstAtEl($comanda, {
+      count: 20,
+      colors: ['#F4ACB7', '#A8D5B5', '#F6CD6A', '#FFF1C1'],
+      glyphs: ['♡', '✦', '✧'],
+      distMin: 30,
+      distMax: 120,
+      ringColor: '#A8D5B5',
+      ringSize: 150,
+    });
     spawnConfetti();
   } else if (result.burnt){
     burnt = true;
@@ -3643,6 +3828,16 @@ async function deliverPizza(){
     setTimeout(() => $comanda.classList.remove('shake'), 500);
     $say.classList.add('sad');
     $say.textContent = speech;
+    SFX.fail();
+    JUICE.shake($app, 'shake-medium');
+    JUICE.burstAtEl($comanda, {
+      count: 12,
+      colors: ['#F5B5A8', '#B35C4E', '#7A6559'],
+      glyphs: ['•', 'dot'],
+      distMax: 85,
+      ringColor: '#F5B5A8',
+      ringSize: 120,
+    });
   } else {
     speech = pick(FALAS_ERRO);
     title = 'Quase lá...';
@@ -3662,6 +3857,16 @@ async function deliverPizza(){
       if (item && !state.board.has(keyOf(item.id, item.at)) && !state.board.has(keyOf(item.id, 'full'))){
         li.classList.add('wrong');
       }
+    });
+    SFX.fail();
+    JUICE.shake($app, 'shake-medium');
+    JUICE.burstAtEl($comanda, {
+      count: 12,
+      colors: ['#F5B5A8', '#B35C4E', '#FFF1C1'],
+      glyphs: ['•', 'dot'],
+      distMax: 85,
+      ringColor: '#F5B5A8',
+      ringSize: 120,
     });
   }
 
@@ -3724,23 +3929,83 @@ function buildStartDeco(){
 }
 
 function startGame(){
+  SFX.unlock();
+  SFX.start();
+  JUICE.burstAtEl($('playBtn'), {
+    count: 16,
+    colors: ['#F4ACB7', '#FFF1C1', '#A8D5B5'],
+    glyphs: ['♡', '✦', '✧'],
+    distMin: 30,
+    distMax: 110,
+    ringColor: '#F4ACB7',
+    ringSize: 140,
+  });
   enterFullscreenAndLandscape();
   $('start').classList.add('gone');
   $('app').classList.remove('hidden');
 }
 
 /* =========================================================
-   18. EVENTOS
+   18. EVENTOS & TOUCH LOCK MOBILE
    ========================================================= */
+
+document.addEventListener('pointerdown', () => SFX.unlock(), { once: true, passive: true });
+
+/* Trava de viewport em celulares: evita zoom de pinça e pull-to-refresh */
+document.addEventListener('gesturestart', e => e.preventDefault(), { passive: false });
+document.addEventListener('touchmove', e => {
+  if (!e.target.closest('.comanda-wrap, .pot-grid, .vip-card')){
+    e.preventDefault();
+  }
+}, { passive: false });
+
+$('soundBtn').addEventListener('click', e => {
+  const muted = SFX.toggle();
+  const btn = $('soundBtn');
+  btn.classList.toggle('muted', muted);
+  btn.setAttribute('aria-pressed', String(!muted));
+  $('soundLabel').textContent = muted ? 'Mudo' : 'Som ♡';
+  $('soundWaves').style.display = muted ? 'none' : '';
+  JUICE.burst(e.clientX || window.innerWidth - 40, e.clientY || 28, {
+    count: 6,
+    glyphs: ['✦', '♡'],
+    distMax: 36,
+  });
+});
+
+$('rotateSkip').addEventListener('click', e => {
+  SFX.tap(560);
+  $('rotateOverlay').classList.add('dismissed');
+  JUICE.burst(e.clientX || window.innerWidth / 2, e.clientY || window.innerHeight / 2, {
+    count: 10,
+    glyphs: ['♡', '✦'],
+    ringColor: '#F4ACB7',
+  });
+});
 
 $pots.addEventListener('click', e => {
   const b = e.target.closest('.pot');
-  if (b && !b.disabled) selectItem(b.dataset.id);
+  if (b && !b.disabled){
+    SFX.potSelect();
+    const it = ITEMS[b.dataset.id];
+    JUICE.burstAtEl(b, {
+      count: 7,
+      colors: [it ? it.color : '#F4ACB7', '#FFF1C1', '#F4ACB7'],
+      glyphs: ['✦', 'dot', '•'],
+      distMin: 14,
+      distMax: 44,
+      ringColor: '#F4ACB7',
+      ringSize: 54,
+    });
+    selectItem(b.dataset.id);
+  }
 });
 
 $tabs.addEventListener('click', e => {
   const b = e.target.closest('.tab');
   if (b){
+    SFX.tap(520);
+    JUICE.burstAtEl(b, { count: 6, glyphs: ['✦', '•'], distMax: 36 });
     state.tab = b.dataset.tab;
     renderTabs();
     renderPots();
@@ -3750,6 +4015,8 @@ $tabs.addEventListener('click', e => {
 $modo.addEventListener('click', e => {
   const b = e.target.closest('.seg');
   if (b){
+    SFX.tap(600);
+    JUICE.burstAtEl(b, { count: 6, glyphs: ['✦', '♡'], distMax: 36, ringColor: '#F4ACB7', ringSize: 48 });
     state.at = b.dataset.at;
     renderSegmented();
   }
@@ -3758,6 +4025,8 @@ $modo.addEventListener('click', e => {
 $skins.addEventListener('click', e => {
   const b = e.target.closest('.skin-pill');
   if (!b) return;
+  SFX.tap(660);
+  JUICE.burstAtEl(b, { count: 8, glyphs: ['♡', '✦', '✧'], distMax: 42, ringColor: '#F4ACB7', ringSize: 44 });
   if (b.dataset.char === 'both'){
     state.skins.arthur = b.dataset.skin;
     state.skins.leticia = b.dataset.skin;
@@ -3768,8 +4037,10 @@ $skins.addEventListener('click', e => {
   renderSkins();
 });
 
-$('nextClient').addEventListener('click', () => {
+$('nextClient').addEventListener('click', e => {
   if (state.busy || state.carry || state.baking) return;
+  SFX.tap(460);
+  JUICE.burstAtEl(e.currentTarget, { count: 7, glyphs: ['✦', '♡'], distMax: 40 });
   novaVisita(true);
 });
 $('clear').addEventListener('click', clearBoard);
